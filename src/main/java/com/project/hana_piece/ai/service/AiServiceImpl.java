@@ -1,17 +1,17 @@
 package com.project.hana_piece.ai.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
+import static com.project.hana_piece.ai.constant.GeminiResponseField.TEXT;
 
+import com.google.gson.JsonObject;
+import com.project.hana_piece.ai.dto.GeminiCallResponse;
+import com.project.hana_piece.ai.exception.GeminiNetworkIOException;
+import com.project.hana_piece.ai.vo.GeminiPrompt;
+import com.project.hana_piece.common.util.JsonUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /*
  * Gemini AI 전용 Service 클래스
@@ -19,18 +19,43 @@ import org.springframework.web.reactive.function.client.WebClient;
  * 2. REST API 기반의 AI API 호출
  * 3. AI API 응답 파싱 후, 사용자 필요 데이터 가공
  */
+@Service
+@RequiredArgsConstructor
 public class AiServiceImpl implements AiService{
 
-    private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+    private final JsonUtil jsonUtil;
 
-    public ResponseEntity<List<String>> callGenerativeLanguageApi(){
+    @Value("${ai.gemini.base-url}")
+    private String BASE_URL;
+    @Value("${ai.gemini.api-key}")
+    private String API_KEY;
+
+    private GeminiCallResponse parseGeminiPromptMessage(String payload) {
+        JsonObject jsonObject = jsonUtil.toJson(payload);
+        String text = jsonUtil.extractProperty(jsonObject, TEXT, String.class);
+
+        return new GeminiCallResponse(text);
+    }
+
+    /**
+     * Gemini API 호출 결과를 반환한다.
+     * TODO 단순 Gemini API를 호출 후 별도의 연산이 필요하지 않아 non-blocking 기반의 webflux의 이점을 활용하지 못하고 동기적으로 구현함. 추후 비동기적 처리가 필요할 경우 리팩토링 할 예정
+     * @return GeminiCallResponse
+     */
+    public GeminiCallResponse callGenerativeLanguageApi(GeminiPrompt geminiPrompt) {
+        WebClient webClient = WebClient.create(BASE_URL + API_KEY);
+        GeminiCallResponse geminiCallResponse = null;
         try {
-            WebClient webClient = WebClient.create(BASE_URL);
+            String geminiApiResponseString = webClient.post()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(geminiPrompt.getTotalPrompt())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-            return null;
-        }
-        catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return geminiCallResponse = parseGeminiPromptMessage(geminiApiResponseString);
+        } catch (Exception e) {
+            throw new GeminiNetworkIOException();
         }
     }
 

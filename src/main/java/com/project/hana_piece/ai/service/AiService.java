@@ -1,9 +1,9 @@
 package com.project.hana_piece.ai.service;
 
-import java.util.List;
-import org.springframework.http.ResponseEntity;
+import com.project.hana_piece.ai.dto.GeminiCallResponse;
+import com.project.hana_piece.ai.vo.GeminiPrompt;
 
 public interface AiService {
 
-    ResponseEntity<List<String>> callGenerativeLanguageApi();
+    GeminiCallResponse callGenerativeLanguageApi(GeminiPrompt geminiPrompt);
 }

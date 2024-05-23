@@ -1,4 +1,4 @@
-package com.project.hana_piece.goal.vo;
+package com.project.hana_piece.goal.domain;
 
 import com.project.hana_piece.common.domain.BaseEntity;
 import jakarta.persistence.Column;

@@ -1,7 +1,6 @@
 package com.project.hana_piece.goal.domain;
 
 import com.project.hana_piece.common.domain.BaseEntity;
-import com.project.hana_piece.goal.vo.GoalType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

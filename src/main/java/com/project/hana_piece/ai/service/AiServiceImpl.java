@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.project.hana_piece.ai.dto.GeminiCallResponse;
 import com.project.hana_piece.ai.exception.GeminiNetworkIOException;
 import com.project.hana_piece.ai.vo.GeminiPrompt;
+import com.project.hana_piece.common.exception.JsonElementNotFoundException;
+import com.project.hana_piece.common.exception.ValueInvalidException;
 import com.project.hana_piece.common.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +55,9 @@ public class AiServiceImpl implements AiService{
                 .bodyToMono(String.class)
                 .block();
 
-            return geminiCallResponse = parseGeminiPromptMessage(geminiApiResponseString);
+            return parseGeminiPromptMessage(geminiApiResponseString);
+        } catch (JsonElementNotFoundException jse){
+            throw new ValueInvalidException();
         } catch (Exception e) {
             throw new GeminiNetworkIOException();
         }

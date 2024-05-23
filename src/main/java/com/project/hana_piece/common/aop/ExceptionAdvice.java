@@ -1,5 +1,6 @@
 package com.project.hana_piece.common.aop;
 
+import com.project.hana_piece.common.exception.JsonElementNotFoundException;
 import com.project.hana_piece.common.exception.NetworkIOException;
 import com.project.hana_piece.common.exception.ValueInvalidException;
 import com.project.hana_piece.common.dto.ErrorResponse;
@@ -47,6 +48,15 @@ public class ExceptionAdvice {
     public ResponseEntity<ErrorResponse> networkIOExceptionExceptionHandler(
         NetworkIOException exception) {
         return new ResponseEntity<>(new ErrorResponse(exception), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    /**
+     * [JsonElementNotFoundException] 발생 시 500 INTERNAL_SERVER_ERROR 응답
+     */
+    @ExceptionHandler(JsonElementNotFoundException.class)
+    public ResponseEntity<ErrorResponse> JsonElementNotFoundExceptionHandler(
+        JsonElementNotFoundException exception) {
+        return new ResponseEntity<>(new ErrorResponse(exception), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 

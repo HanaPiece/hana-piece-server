@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.project.hana_piece.ai.constant.GeminiResponseField;
+import com.project.hana_piece.common.exception.JsonElementNotFoundException;
 import com.project.hana_piece.common.exception.ValueInvalidException;
 import java.util.Map;
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class JsonUtil {
         JsonElement jsonElement = findProperty(jsonObject, key.getProperty());
 
         if (jsonElement == null) {
-            throw new ValueInvalidException();
+            throw new JsonElementNotFoundException();
         }
         return gson.fromJson(jsonElement, clazz);
     }

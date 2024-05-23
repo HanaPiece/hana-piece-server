@@ -1,5 +1,6 @@
 package com.project.hana_piece.common.aop;
 
+import com.project.hana_piece.common.exception.NetworkIOException;
 import com.project.hana_piece.common.exception.ValueInvalidException;
 import com.project.hana_piece.common.dto.ErrorResponse;
 import com.project.hana_piece.common.exception.AccessDeniedException;
@@ -31,12 +32,21 @@ public class ExceptionAdvice {
     }
 
     /**
-     * [MatchRoomFullException] 발생 시 403 FORBIDDEN 응답
+     * [AccessDeniedException] 발생 시 403 FORBIDDEN 응답
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> matchRoomFullExceptionHandler(
+    public ResponseEntity<ErrorResponse> accessDeniedExceptionHandler(
         AccessDeniedException exception) {
         return new ResponseEntity<>(new ErrorResponse(exception), HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * [NetworkIOException] 발생 시 503 SERVICE_UNAVAILABLE 응답
+     */
+    @ExceptionHandler(NetworkIOException.class)
+    public ResponseEntity<ErrorResponse> networkIOExceptionExceptionHandler(
+        NetworkIOException exception) {
+        return new ResponseEntity<>(new ErrorResponse(exception), HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
 

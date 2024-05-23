@@ -1,5 +1,6 @@
 package com.project.hana_piece.common.config;
 
+import com.project.hana_piece.common.aop.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class AuthConfig {
+@RequiredArgsConstructor
+public class AuthenticationConfig {
+
+    private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -25,11 +29,12 @@ public class AuthConfig {
             )
             .authorizeHttpRequests((auth) ->
                 auth
-                    .anyRequest().permitAll()
-                    //.anyRequest().authenticated()
-            );
+                    .requestMatchers("/users/**").permitAll()
+                    //.anyRequest().permitAll()
+                    .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
-

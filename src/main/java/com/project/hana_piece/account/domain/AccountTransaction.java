@@ -26,13 +26,11 @@ public class AccountTransaction extends BaseEntity {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_payment_type_id")
-    private AccountPaymentType accountPaymentType;
+    @Column(name = "account_payment_type_cd")
+    private String accountPaymentTypeCd;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_transaction_type_id")
-    private AccountTransactionType accountTransactionType;
+    @Column(name = "account_transaction_type_cd")
+    private String accountTransactionTypeCd;
 
     @Column(name = "amount")
     private Long amount;

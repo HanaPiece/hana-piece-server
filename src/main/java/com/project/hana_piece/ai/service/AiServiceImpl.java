@@ -1,6 +1,6 @@
 package com.project.hana_piece.ai.service;
 
-import static com.project.hana_piece.ai.constant.GeminiResponseField.TEXT;
+import static com.project.hana_piece.ai.vo.GeminiResponseField.TEXT;
 
 import com.google.gson.JsonObject;
 import com.project.hana_piece.ai.dto.GeminiCallResponse;
@@ -46,7 +46,7 @@ public class AiServiceImpl implements AiService{
      */
     public GeminiCallResponse callGenerativeLanguageApi(GeminiPrompt geminiPrompt) {
         WebClient webClient = WebClient.create(BASE_URL + API_KEY);
-        GeminiCallResponse geminiCallResponse = null;
+
         try {
             String geminiApiResponseString = webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)

@@ -10,18 +10,22 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/*
- * 거래 타입 ex)요식, 쇼핑
+/**
+ * 거래 타입
+ * FOOD 요식
+ * TRANSPORT 교통
+ * SHOPPING 쇼핑
+ * TRANSFER 계좌 이체
  */
-@Entity(name = "account_transaction_type")
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccountTransactionType extends BaseEntity {
+public enum AccountTransactionType {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long accountTransactionTypeId;
+    FOOD("FOOD"),
+    TRANSFER("TRANSFER"),
+    SHOPPING("SHOPPING"),
+    TRANSPORT("TRANSPORT");
+    private final String property;
 
-    @Column(name = "account_transaction_type_nm", length = 50)
-    private String accountTransactionTypeNm;
+    AccountTransactionType(String property) {
+        this.property = property;
+    }
 }

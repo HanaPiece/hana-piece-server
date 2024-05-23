@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,12 +35,11 @@ public class User extends BaseEntity {
     @Column(name = "age")
     private Integer age;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "qualification_type_id")
-    private QualificationType qualificationType;
+    @Column(name = "qualification_type_cd")
+    private String qualificationTypeCd;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "city_type_id")
+    @JoinColumn(name = "city_type_cd")
     private CityType cityType;
 
     @Column(name = "nickname", length = 50, nullable = false)

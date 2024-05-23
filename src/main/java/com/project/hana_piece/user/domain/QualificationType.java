@@ -10,15 +10,22 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "qualification_type")
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class QualificationType extends BaseEntity {
+/**
+ * 근무 직종
+ * SELF_EMP 자영업자
+ * ENTERPRISE 기업체
+ * PROFESSION 전문직
+ * OFFICE 직장인
+ */
+public enum QualificationType  {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long qualificationTypeId;
+    SELF_EMP("SELF_EMP"),
+    ENTERPRISE("ENTERPRISE"),
+    PROFESSION("PROFESSION"),
+    OFFICE("OFFICE");
+    private final String property;
 
-    @Column(name = "qualification_type_nm", length = 50)
-    private String qualificationTypeNm;
+    QualificationType(String property) {
+        this.property = property;
+    }
 }

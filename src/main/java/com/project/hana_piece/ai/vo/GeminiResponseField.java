@@ -1,4 +1,4 @@
-package com.project.hana_piece.ai.constant;
+package com.project.hana_piece.ai.vo;
 
 import lombok.Getter;
 

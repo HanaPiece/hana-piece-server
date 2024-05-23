@@ -10,15 +10,18 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "interest_type")
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class InterestType extends BaseEntity {
+/**
+ * 이자율 타입
+ * FIX 고정
+ * VARIABLE 변동
+ */
+public enum InterestType  {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long interestTypeId;
+    FIX("FIX"),
+    VARIABLE("VARIABLE");
+    private final String property;
 
-    @Column(name = "interest_type_nm", length = 50)
-    private String interestTypeNm;
+    InterestType(String property) {
+        this.property = property;
+    }
 }

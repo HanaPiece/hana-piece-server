@@ -11,15 +11,24 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity(name = "account_type")
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AccountType extends BaseEntity {
+/**
+ * 계좌 타입
+ * CHECKING 입출금
+ * LIFE 생활
+ * SAVING 쇼핑
+ * SPARE 예비
+ * PARKING 저금통
+ */
+public enum AccountType  {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long accountTypeId;
+    CHECKING("CHECKING"),
+    LIFE("LIFE"),
+    SAVING("SAVING"),
+    SPARE("SPARE"),
+    PARKING("PARKING");
+    private final String property;
 
-    @Column(name = "account_type_nm", length = 50)
-    private String accountTypeNm;
+    AccountType(String property) {
+        this.property = property;
+    }
 }

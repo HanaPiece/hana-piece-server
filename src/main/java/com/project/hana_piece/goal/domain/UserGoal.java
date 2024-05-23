@@ -1,6 +1,7 @@
 package com.project.hana_piece.goal.domain;
 
 import com.project.hana_piece.common.domain.BaseEntity;
+import com.project.hana_piece.goal.vo.GoalType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,8 +23,8 @@ public class UserGoal extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "goal_type_id")
-    private Long goalTypeId;
+    @Column(name = "goal_type_cd")
+    private String goalTypeCd;
 
     @Column(name = "goal_specific_id")
     private Long goalSpecificId;

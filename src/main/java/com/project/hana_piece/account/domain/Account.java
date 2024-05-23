@@ -10,10 +10,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import java.math.BigDecimal;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,13 +36,23 @@ public class Account extends BaseEntity {
     @Column(name = "account_number", length = 200)
     private String accountNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_type_id")
-    private AccountType accountType;
+    @Column(name = "account_type_cd")
+    private String accountTypeCd;
 
     @Column(name = "account_alias", length = 50)
     private String accountAlias;
 
     @Column(name = "balance")
     private Long balance;
+
+    @Builder
+    public Account(EnrolledProduct enrolledProduct, User user, String accountNumber,
+        AccountType accountType, String accountAlias, Long balance) {
+        this.enrolledProduct = enrolledProduct;
+        this.user = user;
+        this.accountNumber = accountNumber;
+        this.accountTypeCd = accountType.toString();
+        this.accountAlias = accountAlias;
+        this.balance = balance;
+    }
 }

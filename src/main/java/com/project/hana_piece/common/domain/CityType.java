@@ -15,9 +15,6 @@ import lombok.NoArgsConstructor;
 public class CityType extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cityTypeId;
-
     @Column(name = "city_type_cd")
     private Integer cityTypeCd;
 

@@ -23,8 +23,8 @@ public class Product extends BaseEntity {
     @Column(name="product_nm")
     private String productNm;
 
-    @Column(name="interest_type")
-    private String interestType;
+    @Column(name="interest_type_cd")
+    private String interestTypeCd;
 
     @Column(name="interest_rate")
     private BigDecimal interestRate;

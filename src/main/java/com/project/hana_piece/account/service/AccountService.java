@@ -1,5 +1,8 @@
 package com.project.hana_piece.account.service;
 
+import static com.project.hana_piece.account.constant.AccountNumberConst.LENGTH_WITHOUT_PREFIX;
+import static com.project.hana_piece.account.constant.AccountNumberConst.PREFIX;
+
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.domain.AccountType;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -27,15 +30,17 @@ public class AccountService {
 
         return AccountUpsertResponse.fromEntity(savedAccount);
     }
-
-    // TODO 계좌 번호 생성 전략 고민
+    
     public String generateAccountNumber() {
         Random RANDOM = new Random();
         StringBuilder result = new StringBuilder();
-        for (int i = 0; i < 14; i++) {
-            int digit = RANDOM.nextInt(10); // 0 to 9
+
+        result.append(PREFIX.getProperty());
+        for (int i = 0; i < LENGTH_WITHOUT_PREFIX.getProperty(); i++) {
+            int digit = RANDOM.nextInt(10);
             result.append(digit);
         }
+
         return result.toString();
     }
 }

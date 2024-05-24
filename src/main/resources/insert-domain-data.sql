@@ -1,7 +1,7 @@
 INSERT INTO users (password,email,sex,age,qualification_type_cd,city_type_cd,nickname,salary,deleted_yn,created_at,updated_at) VALUES
 	 ('123456','test@naver.com','M',25,'PROFESSION',50130,'테스트',100,0,'2024-05-18 11:57:10','2024-05-18 11:57:10');
 INSERT INTO user_goals (user_id, goal_type_cd, goal_specific_id, goal_begin_date, duration, amount, deleted_yn, created_at, updated_at) VALUES
-	 (1,'HOME',1,'20240520',30,14600000000,0,'2024-05-20 00:17:37','2024-05-20 00:17:37'),
+	 (1,'HOUSE',1,'20240520',30,14600000000,0,'2024-05-20 00:17:37','2024-05-20 00:17:37'),
 	 (1,'CAR',1,'20240520',10,95400000,0,'2024-05-20 00:19:59','2024-05-20 00:19:59');
 INSERT INTO products (product_nm, interest_type_cd, interest_rate, image_url, info, term_year, cautions, deposit_protection, contract_terms, deleted_yn) VALUES
 ('하나 아이키움 적금', 'FIX', '4.00', NULL, '아동 양육을 위한 수당(영아[부모급여],아동,양육수당) 수급자 및 임산부 대상 우대 금리를 제공하고, 다자녀 가구 대상 특별 우대금리를 제공하는 상품', 1, '서류 확인을 통해 (특별)우대금리 적용 대상 여부 확인이 필요한 경우에는 가까운 하나은행 영업점을 방문하여 해당서류를 제출하여야 합니다. (아동 명의로 계좌로 수당 수급을 확인하는 경우, 임산부임을 확인하는 경우, 다자녀 가구임을 확인하는 경우)\n“하나 합 서비스”는 여러 기관에 흩어진 내 자산·지출 정보를 한눈에 조회하고 관리할 수 있는 마이데이터 기반 하나은행 자산관리 서비스입니다.', '이 예금은 예금자보호법에 따라 원금과 소정의 이자를 합하여 1인당 "5천만원까지"(하나은행의 여타 보호 상품과 합산) 보호됩니다.', '가입대상 : 실명의 개인 및 개인사업자 (1인 1계좌), 가입금액 : 1만원 이상 ~ 30만원 이하, 이자지급방법 : 만기일시지급식 : 만기(후)해지시 이자를 지급', 0),

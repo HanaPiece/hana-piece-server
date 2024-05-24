@@ -34,7 +34,7 @@ public class AiServiceImpl implements AiService{
 
     private GeminiCallResponse parseGeminiPromptMessage(String payload) {
         JsonObject jsonObject = jsonUtil.toJson(payload);
-        String text = jsonUtil.extractProperty(jsonObject, TEXT.toString(), String.class);
+        String text = jsonUtil.extractProperty(jsonObject, TEXT.getProperty(), String.class);
 
         return new GeminiCallResponse(text);
     }

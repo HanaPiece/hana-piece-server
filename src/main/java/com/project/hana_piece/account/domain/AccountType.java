@@ -1,16 +1,6 @@
 package com.project.hana_piece.account.domain;
 
 
-import com.project.hana_piece.common.domain.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 /**
  * 계좌 타입
  * CHECKING 입출금

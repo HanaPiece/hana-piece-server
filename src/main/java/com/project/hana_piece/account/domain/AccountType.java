@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
  * 계좌 타입
  * CHECKING 입출금
  * LIFE 생활
- * SAVING 쇼핑
+ * SAVING 적금
  * SPARE 예비
  * PARKING 저금통
  */

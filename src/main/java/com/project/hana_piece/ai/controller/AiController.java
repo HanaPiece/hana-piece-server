@@ -14,6 +14,7 @@ public class AiController {
 
     private final AiService aiService;
 
+    // TODO 참고용 추후 제거 예정
     @GetMapping("/ai")
     private ResponseEntity<GeminiCallResponse> aiTest() {
         GeminiPrompt geminiPrompt = new GeminiPrompt("도승희는 누구야?");

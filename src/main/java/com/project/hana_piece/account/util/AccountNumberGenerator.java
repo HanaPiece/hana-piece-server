@@ -1,4 +1,4 @@
-package com.project.hana_piece.account.constant;
+package com.project.hana_piece.account.util;
 
 import java.util.Random;
 

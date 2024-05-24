@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-/*
+/**
  * Gemini AI 전용 Service 클래스
  * 1. 요청 프롬프트와 응답 데이터의 구조화
  * 2. REST API 기반의 AI API 호출
@@ -34,7 +34,7 @@ public class AiServiceImpl implements AiService{
 
     private GeminiCallResponse parseGeminiPromptMessage(String payload) {
         JsonObject jsonObject = jsonUtil.toJson(payload);
-        String text = jsonUtil.extractProperty(jsonObject, TEXT, String.class);
+        String text = jsonUtil.extractProperty(jsonObject, TEXT.toString(), String.class);
 
         return new GeminiCallResponse(text);
     }

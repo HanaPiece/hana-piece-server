@@ -1,6 +1,6 @@
 package com.project.hana_piece.account.service;
 
-import static com.project.hana_piece.account.constant.AccountNumberGenerator.generateAccountNumber;
+import static com.project.hana_piece.account.util.AccountNumberGenerator.generateAccountNumber;
 
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.domain.AccountType;

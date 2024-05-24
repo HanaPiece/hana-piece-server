@@ -16,9 +16,9 @@ public class JsonUtil {
 
     private final Gson gson = new Gson();
 
-    public <T> T extractProperty(JsonObject jsonObject, GeminiResponseField key,
+    public <T> T extractProperty(JsonObject jsonObject, String key,
         Class<T> clazz) throws RuntimeException {
-        JsonElement jsonElement = findProperty(jsonObject, key.getProperty());
+        JsonElement jsonElement = findProperty(jsonObject, key);
 
         if (jsonElement == null) {
             throw new JsonElementNotFoundException();

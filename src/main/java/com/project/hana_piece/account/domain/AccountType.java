@@ -4,6 +4,7 @@ package com.project.hana_piece.account.domain;
 /**
  * 계좌 타입
  * CHECKING 입출금
+ * SALARY 월급
  * LIFE 생활
  * SAVING 적금
  * SPARE 예비
@@ -12,6 +13,7 @@ package com.project.hana_piece.account.domain;
 public enum AccountType  {
 
     CHECKING("CHECKING"),
+    SALARY("SALARY"),
     LIFE("LIFE"),
     SAVING("SAVING"),
     SPARE("SPARE"),

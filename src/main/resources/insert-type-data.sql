@@ -23,6 +23,7 @@ INSERT INTO goal_type (goal_type_cd,deleted_yn) VALUES
 
 INSERT INTO account_type (account_type_cd,deleted_yn) VALUES
 	 ('CHECKING',0),
+	 ('SALARY',0),
 	 ('LIFE',0),
 	 ('SAVING',0),
 	 ('SPARE',0),

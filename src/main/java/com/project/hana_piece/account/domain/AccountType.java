@@ -8,8 +8,9 @@ import lombok.Getter;
  * CHECKING 입출금
  * SALARY 월급
  * LIFE 생활
- * SAVING 적금
+ * SAVING 저축
  * SPARE 예비
+ * INSTALLMENT_SAVING 적금
  * PARKING 저금통
  */
 @Getter
@@ -20,6 +21,7 @@ public enum AccountType  {
     LIFE("LIFE"),
     SAVING("SAVING"),
     SPARE("SPARE"),
+    INSTALLMENT_SAVING("INSTALLMENT_SAVING"),
     PARKING("PARKING");
     private final String property;
 

@@ -38,4 +38,10 @@ public class AccountController {
         List<AccountGetResponse> response = accountService.findCheckingAccountList(userId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/installment-saving")
+    public ResponseEntity<List<AccountGetResponse>> findSavingAccountList(@AuthenticationPrincipal Long userId) {
+        List<AccountGetResponse> response = accountService.findSavingAccountList(userId);
+        return ResponseEntity.ok(response);
+    }
 }

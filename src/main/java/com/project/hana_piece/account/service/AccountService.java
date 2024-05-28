@@ -47,7 +47,7 @@ public class AccountService {
         Optional<Account> spareAccount = accountRepository.findById(request.spareAccountId());
 
         // 사용자의 기존 등록된 계좌
-        List<Account> beforeAccountList = accountRepository.findByAccountTypeCdAndUserUserId(userId);
+        List<Account> beforeAccountList = accountRepository.findCheckingAccount(userId);
 
         // 기존 등록된 계좌들 계좌 타입 초기화
         beforeAccountList.forEach(account -> {
@@ -70,7 +70,12 @@ public class AccountService {
     }
 
     public List<AccountGetResponse> findCheckingAccountList(Long userId){
-        List<Account> accountList = accountRepository.findByAccountTypeCdAndUserUserId(userId);
+        List<Account> accountList = accountRepository.findCheckingAccount(userId);
+        return accountList.stream().map(AccountGetResponse::fromEntity).toList();
+    }
+
+    public List<AccountGetResponse> findSavingAccountList(Long userId){
+        List<Account> accountList = accountRepository.findSavingAccount(userId);
         return accountList.stream().map(AccountGetResponse::fromEntity).toList();
     }
 }

@@ -27,7 +27,7 @@ public class ProductService {
         List<Product> products = productRepository.findAll();
         return products.stream()
                 .map(ProductGetResponse::fromProduct)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<ProductGetResponse> recommendProducts(String category) {

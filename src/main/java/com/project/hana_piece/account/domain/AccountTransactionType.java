@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
  * SHOPPING 쇼핑
  * TRANSFER 계좌 이체
  */
+@Getter
 public enum AccountTransactionType {
 
     FOOD("FOOD"),

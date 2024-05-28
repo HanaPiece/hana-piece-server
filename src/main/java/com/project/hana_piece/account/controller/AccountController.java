@@ -1,11 +1,14 @@
 package com.project.hana_piece.account.controller;
 
+import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,5 +23,11 @@ public class AccountController {
     public ResponseEntity<AccountUpsertResponse> saveAccount(@AuthenticationPrincipal Long userId) {
         AccountUpsertResponse response = accountService.saveAccount(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/account-type-reg")
+    public ResponseEntity registerAccountType(@AuthenticationPrincipal Long userId, @RequestBody AccountTypeRegRequest accountTypeRegRequest) {
+        accountService.registerAccountType(userId, accountTypeRegRequest);
+        return ResponseEntity.noContent().build();
     }
 }

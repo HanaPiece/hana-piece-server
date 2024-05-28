@@ -6,6 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.project.hana_piece.ai.vo.GeminiResponseField;
 import com.project.hana_piece.common.exception.JsonElementNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import org.springframework.stereotype.Component;

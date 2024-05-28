@@ -5,7 +5,6 @@ import lombok.Value;
 
 @Value
 public class ApartmentGetResponse {
-    Long apartmentId;
     String apartmentNm;
     Long apartmentPrice;
     Long regionCd;
@@ -14,7 +13,6 @@ public class ApartmentGetResponse {
 
     public static ApartmentGetResponse fromEntity(Apartment apartment) {
         return new ApartmentGetResponse(
-                apartment.getApartmentId(),
                 apartment.getApartmentNm(),
                 apartment.getApartmentPrice(),
                 apartment.getRegionCd(),

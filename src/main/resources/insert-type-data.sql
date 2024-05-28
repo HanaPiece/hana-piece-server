@@ -27,6 +27,7 @@ INSERT INTO account_type (account_type_cd,deleted_yn) VALUES
 	 ('LIFE',0),
 	 ('SAVING',0),
 	 ('SPARE',0),
+	 ('INSTALLMENT_SAVING',0),
 	 ('PARKING',0);
 
 INSERT INTO city_type (city_type_cd, city_type_nm, deleted_yn, created_at, updated_at) VALUES

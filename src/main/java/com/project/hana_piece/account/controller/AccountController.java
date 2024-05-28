@@ -1,12 +1,14 @@
 package com.project.hana_piece.account.controller;
 
+import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.service.AccountService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +28,20 @@ public class AccountController {
     }
 
     @PostMapping("/account-type-reg")
-    public ResponseEntity registerAccountType(@AuthenticationPrincipal Long userId, @RequestBody AccountTypeRegRequest accountTypeRegRequest) {
+    public ResponseEntity<Void> registerAccountType(@AuthenticationPrincipal Long userId, @RequestBody AccountTypeRegRequest accountTypeRegRequest) {
         accountService.registerAccountType(userId, accountTypeRegRequest);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/checking")
+    public ResponseEntity<List<AccountGetResponse>> findCheckingAccountList(@AuthenticationPrincipal Long userId) {
+        List<AccountGetResponse> response = accountService.findCheckingAccountList(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/installment-saving")
+    public ResponseEntity<List<AccountGetResponse>> findSavingAccountList(@AuthenticationPrincipal Long userId) {
+        List<AccountGetResponse> response = accountService.findSavingAccountList(userId);
+        return ResponseEntity.ok(response);
     }
 }

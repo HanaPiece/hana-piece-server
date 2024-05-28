@@ -6,6 +6,7 @@ import static com.project.hana_piece.account.util.AccountNumberGenerator.generat
 
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.domain.AccountType;
+import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.exception.AccountInvalidException;
@@ -46,7 +47,7 @@ public class AccountService {
         Optional<Account> spareAccount = accountRepository.findById(request.spareAccountId());
 
         // 사용자의 기존 등록된 계좌
-        List<Account> beforeAccountList = accountRepository.findByUserUserId(userId);
+        List<Account> beforeAccountList = accountRepository.findCheckingAccount(userId);
 
         // 기존 등록된 계좌들 계좌 타입 초기화
         beforeAccountList.forEach(account -> {
@@ -66,5 +67,15 @@ public class AccountService {
         if(account.getUser().getUserId() != userId) throw new AccountInvalidException();
 
         account.setAccountTypeCd(accountType);
+    }
+
+    public List<AccountGetResponse> findCheckingAccountList(Long userId){
+        List<Account> accountList = accountRepository.findCheckingAccount(userId);
+        return accountList.stream().map(AccountGetResponse::fromEntity).toList();
+    }
+
+    public List<AccountGetResponse> findSavingAccountList(Long userId){
+        List<Account> accountList = accountRepository.findSavingAccount(userId);
+        return accountList.stream().map(AccountGetResponse::fromEntity).toList();
     }
 }

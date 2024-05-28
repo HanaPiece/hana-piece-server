@@ -45,6 +45,10 @@ public class Account extends BaseEntity {
     @Column(name = "balance")
     private Long balance;
 
+    public void setAccountTypeCd(AccountType accountType){
+        this.accountTypeCd = accountType.getProperty();
+    }
+
     @Builder
     public Account(EnrolledProduct enrolledProduct, User user, String accountNumber,
         AccountType accountType, String accountAlias, Long balance) {

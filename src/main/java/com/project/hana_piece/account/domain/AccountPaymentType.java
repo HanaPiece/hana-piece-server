@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
  * TRANSFER 계좌이체
  * CARD 카드결제
  */
+@Getter
 public enum AccountPaymentType {
     TRANSFER("TRANSFER"),
     CARD("CARD");

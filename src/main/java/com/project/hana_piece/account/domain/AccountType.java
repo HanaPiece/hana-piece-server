@@ -1,6 +1,8 @@
 package com.project.hana_piece.account.domain;
 
 
+import lombok.Getter;
+
 /**
  * 계좌 타입
  * CHECKING 입출금
@@ -10,6 +12,7 @@ package com.project.hana_piece.account.domain;
  * SPARE 예비
  * PARKING 저금통
  */
+@Getter
 public enum AccountType  {
 
     CHECKING("CHECKING"),
@@ -22,5 +25,10 @@ public enum AccountType  {
 
     AccountType(String property) {
         this.property = property;
+    }
+
+    public static boolean isParkingAccountType(String accountType) {
+        if(accountType == PARKING.getProperty()) return true;
+        return false;
     }
 }

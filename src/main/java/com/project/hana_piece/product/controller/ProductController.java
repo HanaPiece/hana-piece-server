@@ -1,12 +1,13 @@
 package com.project.hana_piece.product.controller;
 
-import com.project.hana_piece.product.dto.ProductGetResponse;
-import com.project.hana_piece.product.service.ProductService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+import com.project.hana_piece.product.dto.ProductGetResponse;
+import com.project.hana_piece.product.service.ProductService;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,4 +21,10 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("/products/recommend")
+    public ResponseEntity<List<ProductGetResponse>> recommendProducts(@RequestParam String category) {
+        List<ProductGetResponse> response = productService.recommendProducts(category);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -1,11 +1,15 @@
 package com.project.hana_piece.goal.domain;
 
 import com.project.hana_piece.common.domain.BaseEntity;
+import com.project.hana_piece.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,8 +24,9 @@ public class UserGoal extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userGoalId;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "goal_type_cd")
     private String goalTypeCd;
@@ -39,8 +44,8 @@ public class UserGoal extends BaseEntity {
     private Long amount;
 
     @Builder
-    public UserGoal(Long userId, String goalTypeCd, Long goalSpecificId, String goalBeginDate, Integer duration, Long amount) {
-        this.userId = userId;
+    public UserGoal(User user, String goalTypeCd, Long goalSpecificId, String goalBeginDate, Integer duration, Long amount) {
+        this.user = user;
         this.goalTypeCd = goalTypeCd;
         this.goalSpecificId = goalSpecificId;
         this.goalBeginDate = goalBeginDate;

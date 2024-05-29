@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
  * TRANSPORT 교통
  * SHOPPING 쇼핑
  * TRANSFER 계좌 이체
+ * INTEREST 이자
  */
 @Getter
 public enum AccountTransactionType {

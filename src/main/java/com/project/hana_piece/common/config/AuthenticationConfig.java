@@ -29,7 +29,7 @@ public class AuthenticationConfig {
             )
             .authorizeHttpRequests((auth) ->
                 auth
-                    .requestMatchers("/users/**").permitAll()
+                    .requestMatchers("/api/v1/users/**").permitAll()
                     //.anyRequest().permitAll()
                     .anyRequest().authenticated()
             )

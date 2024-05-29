@@ -4,6 +4,7 @@
     import com.project.hana_piece.goal.dto.ApartmentGetResponse;
     import com.project.hana_piece.goal.dto.ApartmentPricePredictRequest;
     import com.project.hana_piece.goal.dto.ApartmentPricePredictResponse;
+    import com.project.hana_piece.goal.dto.CarGetResponse;
     import com.project.hana_piece.goal.dto.UserGoalGetResponse;
     import com.project.hana_piece.goal.service.ApartmentService;
     import com.project.hana_piece.goal.service.CarService;

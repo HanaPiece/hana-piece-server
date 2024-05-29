@@ -1,7 +1,9 @@
     package com.project.hana_piece.goal.controller;
 
-    import com.project.hana_piece.goal.domain.UserGoal;
-    import com.project.hana_piece.goal.dto.*;
+    import com.project.hana_piece.goal.dto.ApartmentGetResponse;
+    import com.project.hana_piece.goal.dto.ApartmentPricePredictRequest;
+    import com.project.hana_piece.goal.dto.ApartmentPricePredictResponse;
+    import com.project.hana_piece.goal.dto.UserGoalGetResponse;
     import com.project.hana_piece.goal.service.ApartmentService;
     import com.project.hana_piece.goal.service.UserGoalService;
     import lombok.RequiredArgsConstructor;
@@ -34,25 +36,6 @@
         @GetMapping
         public ResponseEntity<List<UserGoalGetResponse>> findUserGoals(@AuthenticationPrincipal Long userId) {
             List<UserGoalGetResponse> response = userGoalService.findUserGoalsByUserId(userId);
-            return ResponseEntity.ok(response);
-        }
-
-        @GetMapping("/{userGoalId}")
-        public ResponseEntity<UserGoalGetResponse> findUserGoalById(@PathVariable Long userGoalId) {
-            UserGoalGetResponse response = userGoalService.findUserGoalById(userGoalId);
-            return ResponseEntity.ok(response);
-        }
-
-        @GetMapping("/types")
-        public ResponseEntity<List<UserGoalTypeGetResponse>> getUserGoalTypes(@AuthenticationPrincipal Long userId) {
-            List<UserGoalTypeGetResponse> response = userGoalService.findUserGoalTypesByUserId(userId);
-            return ResponseEntity.ok(response);
-        }
-
-        @PostMapping
-        public ResponseEntity<UserGoalGetResponse> upsertUserGoal(@RequestBody UserGoalUpsertRequest request,
-                                                                  @AuthenticationPrincipal Long userId) {
-            UserGoalGetResponse response = userGoalService.upsertUserGoal(request, userId);
             return ResponseEntity.ok(response);
         }
     }

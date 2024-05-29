@@ -9,9 +9,15 @@ import com.project.hana_piece.account.domain.AccountType;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
+import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
 import com.project.hana_piece.account.exception.AccountInvalidException;
+import com.project.hana_piece.account.projection.UserGoalAccountSummary;
 import com.project.hana_piece.account.repository.AccountRepository;
+import com.project.hana_piece.goal.domain.UserGoal;
+import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
+import com.project.hana_piece.goal.repository.UserGoalRepository;
 import com.project.hana_piece.user.domain.User;
+import com.project.hana_piece.user.exception.UserInvalidException;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
 import java.util.List;
@@ -27,6 +33,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final UserGoalRepository userGoalRepository;
 
     public AccountUpsertResponse saveAccount(Long userId) {
         User user = userRepository.findById(userId)
@@ -77,5 +84,17 @@ public class AccountService {
     public List<AccountGetResponse> findSavingAccountList(Long userId){
         List<Account> accountList = accountRepository.findSavingAccount(userId);
         return accountList.stream().map(AccountGetResponse::fromEntity).toList();
+    }
+
+    public List<UserGoalAccountGetResponse> findUserGoalAccountList(Long userId, Long userGoalId) {
+        UserGoal userGoal = userGoalRepository.findById(userGoalId)
+            .orElseThrow(() -> new UserGoalNotFoundException(userGoalId));
+
+        if(userGoal.getUser() == null || !userGoal.getUser().getUserId().equals(userId) ){
+            throw new UserInvalidException(userId);
+        }
+
+        List<UserGoalAccountSummary> accountList = accountRepository.findUserGoalAccountList(userGoalId);
+        return accountList.stream().map(UserGoalAccountGetResponse::fromProjection).toList();
     }
 }

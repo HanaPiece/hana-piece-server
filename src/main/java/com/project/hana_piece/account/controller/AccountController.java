@@ -3,12 +3,14 @@ package com.project.hana_piece.account.controller;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
+import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
 import com.project.hana_piece.account.service.AccountService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +44,12 @@ public class AccountController {
     @GetMapping("/installment-saving")
     public ResponseEntity<List<AccountGetResponse>> findSavingAccountList(@AuthenticationPrincipal Long userId) {
         List<AccountGetResponse> response = accountService.findSavingAccountList(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user-goal/{userGoalId}")
+    public ResponseEntity<List<UserGoalAccountGetResponse>> findUserGoalAccountList(@AuthenticationPrincipal Long userId, @PathVariable Long userGoalId) {
+        List<UserGoalAccountGetResponse> response = accountService.findUserGoalAccountList(userId, userGoalId);
         return ResponseEntity.ok(response);
     }
 }

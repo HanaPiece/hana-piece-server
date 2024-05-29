@@ -18,7 +18,7 @@ public class UserGoalService {
 
 
     public List<UserGoalGetResponse> findUserGoalsByUserId(Long userId) {
-        List<UserGoal> userGoals = userGoalRepository.findByUserId(userId);
+        List<UserGoal> userGoals = userGoalRepository.findByUserUserId(userId);
 
         return userGoals.stream()
                 .map(UserGoalGetResponse::fromEntity)

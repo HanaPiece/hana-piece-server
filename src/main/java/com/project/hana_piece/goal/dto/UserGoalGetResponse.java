@@ -12,9 +12,11 @@ public record UserGoalGetResponse(
         Long amount
 ) {
     public static UserGoalGetResponse fromEntity(UserGoal userGoal) {
+        Long userId = userGoal.getUser() != null ? userGoal.getUser().getUserId(): null;
+        
         return new UserGoalGetResponse(
                 userGoal.getUserGoalId(),
-                userGoal.getUserId(),
+                userId,
                 userGoal.getGoalTypeCd(),
                 userGoal.getGoalSpecificId(),
                 userGoal.getGoalBeginDate(),

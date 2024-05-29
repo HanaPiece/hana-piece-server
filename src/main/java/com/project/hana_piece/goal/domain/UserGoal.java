@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,4 +42,14 @@ public class UserGoal extends BaseEntity {
 
     @Column(name = "amount")
     private Long amount;
+
+    @Builder
+    public UserGoal(User user, String goalTypeCd, Long goalSpecificId, String goalBeginDate, Integer duration, Long amount) {
+        this.user = user;
+        this.goalTypeCd = goalTypeCd;
+        this.goalSpecificId = goalSpecificId;
+        this.goalBeginDate = goalBeginDate;
+        this.duration = duration;
+        this.amount = amount;
+    }
 }

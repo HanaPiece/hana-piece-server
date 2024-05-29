@@ -5,14 +5,18 @@ import static com.project.hana_piece.account.domain.AccountType.isParkingAccount
 import static com.project.hana_piece.account.util.AccountNumberGenerator.generateAccountNumber;
 
 import com.project.hana_piece.account.domain.Account;
+import com.project.hana_piece.account.domain.AccountTransaction;
 import com.project.hana_piece.account.domain.AccountType;
 import com.project.hana_piece.account.dto.AccountGetResponse;
+import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
 import com.project.hana_piece.account.exception.AccountInvalidException;
+import com.project.hana_piece.account.exception.AccountNotFoundException;
 import com.project.hana_piece.account.projection.UserGoalAccountSummary;
 import com.project.hana_piece.account.repository.AccountRepository;
+import com.project.hana_piece.account.repository.AccountTransactionRepository;
 import com.project.hana_piece.goal.domain.UserGoal;
 import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
 import com.project.hana_piece.goal.repository.UserGoalRepository;
@@ -32,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountTransactionRepository accountTransactionRepository;
     private final UserRepository userRepository;
     private final UserGoalRepository userGoalRepository;
 
@@ -71,7 +76,7 @@ public class AccountService {
 
     public void registerSpecificAccountType(Long userId, Account account, AccountType accountType) {
         // 계좌 userId 검증
-        if(account.getUser().getUserId() != userId) throw new AccountInvalidException();
+        if(account.getUser() == null || !account.getUser().getUserId().equals(userId)) throw new UserInvalidException(userId);
 
         account.setAccountTypeCd(accountType);
     }
@@ -96,5 +101,18 @@ public class AccountService {
 
         List<UserGoalAccountSummary> accountList = accountRepository.findUserGoalAccountList(userGoalId);
         return accountList.stream().map(UserGoalAccountGetResponse::fromProjection).toList();
+    }
+
+    public List<AccountTransactionGetResponse> findGoalAccountTransactionList(Long userId, Long accountId) {
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new AccountNotFoundException(accountId));
+        List<AccountTransaction> accountTransactionList = accountTransactionRepository.findByAccountAccountId(accountId);
+
+        // 적금 통장이 아닐 경우 예외 처리
+        if(account.getAccountTypeCd() == INSTALLMENT_SAVING.getProperty()){
+            throw new AccountInvalidException(accountId);
+        }
+
+        return accountTransactionList.stream().map(AccountTransactionGetResponse::fromEntity).toList();
     }
 }

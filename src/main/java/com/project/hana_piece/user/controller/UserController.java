@@ -6,16 +6,11 @@ import com.project.hana_piece.user.dto.UserLoginResponse;
 import com.project.hana_piece.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -31,4 +26,11 @@ public class UserController {
         UserLoginResponse response = userService.login(dto);
         return ResponseEntity.ok(response);
     }
+
+    // 월급에 필요한 정보 : 월급계좌 : account_auto_debit.account_id->accounts.account_number / 월급 users.salary / 월급일 : account_auto_debit.auto_debit_day
+//    @GetMapping("/salary")
+//    public ResponseEntity<UserSalaryGetResponse> getUserSalary(@AuthenticationPrincipal Long userId) {
+//        UserSalaryGetResponse response = userService.getUserSalary(userId);
+//        return ResponseEntity.ok(response);
+//    }
 }

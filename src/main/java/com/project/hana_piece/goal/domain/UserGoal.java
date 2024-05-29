@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,4 +37,14 @@ public class UserGoal extends BaseEntity {
 
     @Column(name = "amount")
     private Long amount;
+
+    @Builder
+    public UserGoal(Long userId, String goalTypeCd, Long goalSpecificId, String goalBeginDate, Integer duration, Long amount) {
+        this.userId = userId;
+        this.goalTypeCd = goalTypeCd;
+        this.goalSpecificId = goalSpecificId;
+        this.goalBeginDate = goalBeginDate;
+        this.duration = duration;
+        this.amount = amount;
+    }
 }

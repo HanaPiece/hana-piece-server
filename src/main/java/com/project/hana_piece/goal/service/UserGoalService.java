@@ -35,7 +35,7 @@ public class UserGoalService {
     }
 
     public List<UserGoalTypeGetResponse> findUserGoalTypesByUserId(Long userId) {
-        List<UserGoal> userGoals = userGoalRepository.findByUserId(userId);
+        List<UserGoal> userGoals = userGoalRepository.findByUserUserId(userId);
         return userGoals.stream()
                 .map(UserGoalTypeGetResponse::fromEntity)
                 .distinct()
@@ -49,7 +49,7 @@ public class UserGoalService {
             UserGoal existingUserGoal = userGoalRepository.findById(request.userGoalId())
                     .orElseThrow(() -> new RuntimeException("User goal not found"));
             userGoal = existingUserGoal.builder()
-                    .userId(userId) // keep the same user ID
+//                    .userId(userId) // keep the same user ID
                     .goalTypeCd(request.goalTypeCd())
                     .goalSpecificId(request.goalSpecificId())
                     .goalBeginDate(request.goalBeginDate())
@@ -58,7 +58,7 @@ public class UserGoalService {
                     .build();
         } else {
             userGoal = UserGoal.builder()
-                    .userId(userId)
+//                    .userId(userId)
                     .goalTypeCd(request.goalTypeCd())
                     .goalSpecificId(request.goalSpecificId())
                     .goalBeginDate(request.goalBeginDate())

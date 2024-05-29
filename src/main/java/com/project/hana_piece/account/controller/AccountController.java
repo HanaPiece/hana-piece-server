@@ -1,6 +1,7 @@
 package com.project.hana_piece.account.controller;
 
 import com.project.hana_piece.account.dto.AccountGetResponse;
+import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
@@ -50,6 +51,12 @@ public class AccountController {
     @GetMapping("/user-goal/{userGoalId}")
     public ResponseEntity<List<UserGoalAccountGetResponse>> findUserGoalAccountList(@AuthenticationPrincipal Long userId, @PathVariable Long userGoalId) {
         List<UserGoalAccountGetResponse> response = accountService.findUserGoalAccountList(userId, userGoalId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{accountId}/transactions/goal-installment-saving")
+    public ResponseEntity<List<AccountTransactionGetResponse>> findGoalAccountTransactionList(@AuthenticationPrincipal Long userId, @PathVariable Long accountId) {
+        List<AccountTransactionGetResponse> response = accountService.findGoalAccountTransactionList(userId, accountId);
         return ResponseEntity.ok(response);
     }
 }

@@ -7,6 +7,8 @@ import com.project.hana_piece.common.util.JsonUtil;
 import com.project.hana_piece.product.domain.Product;
 import com.project.hana_piece.product.dto.ProductDetailResponse;
 import com.project.hana_piece.product.dto.ProductGetResponse;
+import com.project.hana_piece.product.exception.InvalidCategoryException;
+import com.project.hana_piece.product.exception.ProductNotFoundException;
 import com.project.hana_piece.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -75,7 +77,7 @@ public class ProductService {
                         .append("아래는 상품 리스트야: ");
                 break;
             default:
-                throw new IllegalArgumentException("Invalid category: " + category);
+                throw new InvalidCategoryException(category);
         }
 
         for (Product product : products) {
@@ -107,7 +109,7 @@ public class ProductService {
     public ProductDetailResponse getProductDetail(Long productId) {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
-            throw new IllegalArgumentException("Product not found: " + productId);
+            throw new ProductNotFoundException(productId);
         }
         return ProductDetailResponse.fromProduct(productOptional.get());
     }

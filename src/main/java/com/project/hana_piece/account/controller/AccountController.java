@@ -3,6 +3,7 @@ package com.project.hana_piece.account.controller;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
+import com.project.hana_piece.account.dto.AccountSavingGetResponse;
 import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -47,7 +48,7 @@ public class AccountController {
 
     @GetMapping("/installment-saving")
     public ResponseEntity<List<AccountGetResponse>> findSavingAccountList(@AuthenticationPrincipal Long userId) {
-        List<AccountGetResponse> response = accountService.findSavingAccountList(userId);
+        List<AccountGetResponse> response = accountService.findInstallmentSavingAccountList(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -72,6 +73,12 @@ public class AccountController {
     @GetMapping("/salary")
     public ResponseEntity<AccountSalaryGetResponse> findSalaryAccount(@AuthenticationPrincipal Long userId) {
         AccountSalaryGetResponse response = accountService.findSalaryAccount(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/saving")
+    public ResponseEntity<AccountSavingGetResponse> findSavingAccount(@AuthenticationPrincipal Long userId) {
+        AccountSavingGetResponse response = accountService.findSavingAccount(userId);
         return ResponseEntity.ok(response);
     }
 }

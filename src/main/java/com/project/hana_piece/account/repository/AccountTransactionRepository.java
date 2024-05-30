@@ -1,7 +1,6 @@
 package com.project.hana_piece.account.repository;
 
 import com.project.hana_piece.account.domain.AccountTransaction;
-import com.project.hana_piece.account.projection.AccountDailyTransactionSummary;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

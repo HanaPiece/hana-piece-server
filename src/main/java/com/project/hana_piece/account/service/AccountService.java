@@ -11,6 +11,7 @@ import com.project.hana_piece.account.dto.AccountDailyTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
+import com.project.hana_piece.account.dto.AccountSavingGetResponse;
 import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -91,8 +92,8 @@ public class AccountService {
         return accountList.stream().map(AccountGetResponse::fromEntity).toList();
     }
 
-    public List<AccountGetResponse> findSavingAccountList(Long userId){
-        List<Account> accountList = accountRepository.findSavingAccount(userId);
+    public List<AccountGetResponse> findInstallmentSavingAccountList(Long userId){
+        List<Account> accountList = accountRepository.findInstallmentSavingAccount(userId);
         return accountList.stream().map(AccountGetResponse::fromEntity).toList();
     }
 
@@ -170,6 +171,17 @@ public class AccountService {
             throw new UserInvalidException(userId);
         }
 
-        return new AccountSalaryGetResponse(salaryAccount.getAccountNumber(), user.getSalary(), user.getSalaryDay());
+        return new AccountSalaryGetResponse(salaryAccount.getAccountId(), salaryAccount.getAccountNumber(), user.getSalary(), user.getSalaryDay());
+    }
+
+    public AccountSavingGetResponse findSavingAccount(Long userId) {
+        Account savingAccount = accountRepository.findSavingAccount(userId).orElseThrow(()-> new AccountInvalidException());
+
+        // 사용자 검증
+        if(savingAccount.getUser() == null || !savingAccount.getUser().getUserId().equals(userId) ){
+            throw new UserInvalidException(userId);
+        }
+
+        return new AccountSavingGetResponse(savingAccount.getAccountId(), savingAccount.getAccountNumber());
     }
 }

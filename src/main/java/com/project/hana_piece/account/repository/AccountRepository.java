@@ -20,7 +20,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
         "WHERE account_type_cd IN('INSTALLMENT_SAVING') " +
         "AND user_id = :userId " +
         "ORDER BY account_type_cd ASC, account_id ASC", nativeQuery = true)
-    List<Account> findSavingAccount(Long userId);
+    List<Account> findInstallmentSavingAccount(Long userId);
 
 
     @Query(value = "WITH EnrolledProductData AS ("
@@ -67,4 +67,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
         "AND user_id = :userId " +
         "LIMIT 1", nativeQuery = true)
     Optional<Account> findSalaryAccount(Long userId);
+
+    @Query(value = "SELECT * FROM accounts " +
+        "WHERE account_type_cd IN('SAVING') " +
+        "AND user_id = :userId " +
+        "LIMIT 1", nativeQuery = true)
+    Optional<Account> findSavingAccount(Long userId);
 }

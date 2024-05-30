@@ -5,7 +5,10 @@ import com.project.hana_piece.ai.service.AiService;
 import com.project.hana_piece.ai.vo.GeminiPrompt;
 import com.project.hana_piece.common.util.JsonUtil;
 import com.project.hana_piece.product.domain.Product;
+import com.project.hana_piece.product.dto.ProductDetailResponse;
 import com.project.hana_piece.product.dto.ProductGetResponse;
+import com.project.hana_piece.product.exception.InvalidCategoryException;
+import com.project.hana_piece.product.exception.ProductNotFoundException;
 import com.project.hana_piece.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,8 +68,16 @@ public class ProductService {
                         .append("2. 만약 기간이 같다면 이자율이 높은 상품이 우선순위가 높아야 해. ")
                         .append("아래는 상품 리스트야: ");
                 break;
+            case "goal":
+                promptMessage.append("아래의 상품 리스트 중 목표를 위한 하나은행 적금 2개를 추천순위로 제공해줘. ")
+                        .append("답변으로는 추천 상품의 product_id만 콤마를 기준으로 공백없이 나열해서 응답해주면 돼. ")
+                        .append("이 내용의 텍스트만 전달해줘")
+                        .append("우선순위 기준은 다음과 같아: ")
+                        .append("1. 랜덤으로 선택된 상품이여야 해. ")
+                        .append("아래는 상품 리스트야: ");
+                break;
             default:
-                throw new IllegalArgumentException("Invalid category: " + category);
+                throw new InvalidCategoryException(category);
         }
 
         for (Product product : products) {
@@ -92,5 +104,13 @@ public class ProductService {
             }
         }
         return productGetResponseList;
+    }
+
+    public ProductDetailResponse getProductDetail(Long productId) {
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
+            throw new ProductNotFoundException(productId);
+        }
+        return ProductDetailResponse.fromProduct(productOptional.get());
     }
 }

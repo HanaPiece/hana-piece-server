@@ -1,6 +1,7 @@
 package com.project.hana_piece.account.controller;
 
 import com.project.hana_piece.account.dto.AccountGetResponse;
+import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -57,6 +59,12 @@ public class AccountController {
     @GetMapping("/{accountId}/transactions/goal-installment-saving")
     public ResponseEntity<List<AccountTransactionGetResponse>> findGoalAccountTransactionList(@AuthenticationPrincipal Long userId, @PathVariable Long accountId) {
         List<AccountTransactionGetResponse> response = accountService.findGoalAccountTransactionList(userId, accountId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{accountId}/transactions")
+    public ResponseEntity<AccountMonthTransactionGetResponse> findAccountMonthTransactionList(@AuthenticationPrincipal Long userId, @PathVariable Long accountId, @RequestParam("month") Integer month) {
+        AccountMonthTransactionGetResponse response = accountService.findAccountMonthTransactionList(userId, accountId, month);
         return ResponseEntity.ok(response);
     }
 }

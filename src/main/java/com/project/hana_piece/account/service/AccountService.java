@@ -7,7 +7,9 @@ import static com.project.hana_piece.account.util.AccountNumberGenerator.generat
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.domain.AccountTransaction;
 import com.project.hana_piece.account.domain.AccountType;
+import com.project.hana_piece.account.dto.AccountDailyTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountGetResponse;
+import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -25,7 +27,9 @@ import com.project.hana_piece.user.exception.UserInvalidException;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -113,6 +117,46 @@ public class AccountService {
             throw new AccountInvalidException(accountId);
         }
 
+        // 사용자 검증
+        if(account.getUser() == null || !account.getUser().getUserId().equals(userId) ){
+            throw new UserInvalidException(userId);
+        }
+
         return accountTransactionList.stream().map(AccountTransactionGetResponse::fromEntity).toList();
+    }
+
+    public AccountMonthTransactionGetResponse findAccountMonthTransactionList(Long userId, Long accountId, Integer transactionMonth) {
+        Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new AccountNotFoundException(accountId));
+        List<AccountTransaction> dailyTransactionProjectionList = accountTransactionRepository.findDailyTransactionList(
+            accountId, transactionMonth);
+        // Projection List -> DTO List
+        List<AccountDailyTransactionGetResponse> dailyTransactionList = dailyTransactionProjectionList.stream()
+            .map(AccountDailyTransactionGetResponse::fromEntity).toList();
+
+        // 사용자 검증
+        if(account.getUser() == null || !account.getUser().getUserId().equals(userId) ){
+            throw new UserInvalidException(userId);
+        }
+
+        // 일 별 통계
+        Map<Integer, Long> amountByDay = dailyTransactionList.stream()
+            .collect(Collectors.groupingBy(
+                AccountDailyTransactionGetResponse::transactionDay,
+                Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
+                )));
+
+        // 월 별 통계
+        Long monthlySum = dailyTransactionList.stream()
+            .mapToLong(transaction -> Math.abs(transaction.amount())).sum();
+
+        // 월 별 거래 타입 별 통계
+        Map<String, Long> amountByType = dailyTransactionList.stream()
+            .collect(Collectors.groupingBy(
+                AccountDailyTransactionGetResponse::accountTransactionType,
+                Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
+            )));
+
+        return new AccountMonthTransactionGetResponse(monthlySum, amountByType, amountByDay, dailyTransactionList);
     }
 }

@@ -1,6 +1,7 @@
 package com.project.hana_piece.account.repository;
 
 import com.project.hana_piece.account.domain.Account;
+import com.project.hana_piece.account.projection.AccountAutoDebitSummary;
 import com.project.hana_piece.account.projection.UserGoalAccountSummary;
 import java.util.List;
 import java.util.Optional;
@@ -73,4 +74,24 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
         "AND user_id = :userId " +
         "LIMIT 1", nativeQuery = true)
     Optional<Account> findSavingAccount(Long userId);
+
+    @Query(value = "WITH AutoDebitData AS ( "
+        + "SELECT "
+        + "aad.target_account_id, "
+        + "aad.account_auto_debit_id, "
+        + "aad.auto_debit_amount "
+        + "FROM accounts a "
+        + "JOIN account_auto_debit aad ON a.account_id = aad.account_id "
+        + "        WHERE account_type_cd IN('SALARY') "
+        + "        AND user_id = :userId"
+        + ") "
+        + "SELECT "
+        + "a.account_id as accountId, "
+        + "a.account_type_cd as accountTypeCd, "
+        + "a.account_number as accountNumber, "
+        + "adb.account_auto_debit_id as accountAutoDebitId, "
+        + "adb.auto_debit_amount as autoDebitAmount "
+        + "FROM AutoDebitData adb "
+        + "JOIN accounts a ON adb.target_account_id = a.account_id ", nativeQuery = true)
+    List<AccountAutoDebitSummary> findAutoDebitAccount(Long userId);
 }

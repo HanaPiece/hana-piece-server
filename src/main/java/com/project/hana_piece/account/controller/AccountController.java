@@ -1,5 +1,6 @@
 package com.project.hana_piece.account.controller;
 
+import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
@@ -79,6 +80,12 @@ public class AccountController {
     @GetMapping("/saving")
     public ResponseEntity<AccountSavingGetResponse> findSavingAccount(@AuthenticationPrincipal Long userId) {
         AccountSavingGetResponse response = accountService.findSavingAccount(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/auto-debit/adjust")
+    public ResponseEntity<List<AccountAutoDebitAdjustGetResponse>> findAccountAutoDebitAdjust(@AuthenticationPrincipal Long userId) {
+        List<AccountAutoDebitAdjustGetResponse> response = accountService.findAccountAutoDebitAdjust(userId);
         return ResponseEntity.ok(response);
     }
 }

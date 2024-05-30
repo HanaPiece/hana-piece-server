@@ -33,4 +33,9 @@ public enum AccountType  {
         if(accountType == PARKING.getProperty()) return true;
         return false;
     }
+
+    public static boolean isInstallmentSavingAccountType(String accountType) {
+        if(accountType == INSTALLMENT_SAVING.getProperty()) return true;
+        return false;
+    }
 }

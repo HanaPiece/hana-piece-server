@@ -10,6 +10,7 @@ import com.project.hana_piece.account.domain.AccountType;
 import com.project.hana_piece.account.dto.AccountDailyTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
+import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
 import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -158,5 +159,17 @@ public class AccountService {
             )));
 
         return new AccountMonthTransactionGetResponse(monthlySum, amountByType, amountByDay, dailyTransactionList);
+    }
+
+    public AccountSalaryGetResponse findSalaryAccount(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        Account salaryAccount = accountRepository.findSalaryAccount(userId).orElseThrow(()-> new AccountInvalidException());
+
+        // 사용자 검증
+        if(salaryAccount.getUser() == null || !salaryAccount.getUser().getUserId().equals(userId) ){
+            throw new UserInvalidException(userId);
+        }
+
+        return new AccountSalaryGetResponse(salaryAccount.getAccountNumber(), user.getSalary(), user.getSalaryDay());
     }
 }

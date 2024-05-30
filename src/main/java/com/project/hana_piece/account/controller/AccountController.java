@@ -2,6 +2,7 @@ package com.project.hana_piece.account.controller;
 
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
+import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
 import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
@@ -65,6 +66,12 @@ public class AccountController {
     @GetMapping("/{accountId}/transactions")
     public ResponseEntity<AccountMonthTransactionGetResponse> findAccountMonthTransactionList(@AuthenticationPrincipal Long userId, @PathVariable Long accountId, @RequestParam("month") Integer month) {
         AccountMonthTransactionGetResponse response = accountService.findAccountMonthTransactionList(userId, accountId, month);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/salary")
+    public ResponseEntity<AccountSalaryGetResponse> findSalaryAccount(@AuthenticationPrincipal Long userId) {
+        AccountSalaryGetResponse response = accountService.findSalaryAccount(userId);
         return ResponseEntity.ok(response);
     }
 }

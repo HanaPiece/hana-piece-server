@@ -47,4 +47,7 @@ public class User extends BaseEntity {
 
     @Column(name = "salary")
     private Long salary;
+
+    @Column(name = "salary_day")
+    private Integer salaryDay;
 }

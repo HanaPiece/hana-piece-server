@@ -45,6 +45,7 @@ CREATE TABLE users (
     city_type_cd INT,
     nickname VARCHAR(50) NOT NULL,
     salary BIGINT NOT NULL DEFAULT 0,
+    salary_day TINYINT(31),
     deleted_yn TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP   NULL DEFAULT now(),
     updated_at TIMESTAMP   NULL DEFAULT now(),

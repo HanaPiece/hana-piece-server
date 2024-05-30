@@ -3,6 +3,7 @@ package com.project.hana_piece.account.repository;
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.projection.UserGoalAccountSummary;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -61,4 +62,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
         + "    JOIN user_goals ug ON ed.user_goal_id = ug.user_goal_id", nativeQuery = true)
     List<UserGoalAccountSummary> findUserGoalAccountList(@Param("userGoalId") Long userGoalId);
 
+    @Query(value = "SELECT * FROM accounts " +
+        "WHERE account_type_cd IN('SALARY') " +
+        "AND user_id = :userId " +
+        "LIMIT 1", nativeQuery = true)
+    Optional<Account> findSalaryAccount(Long userId);
 }

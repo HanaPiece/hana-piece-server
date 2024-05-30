@@ -1,5 +1,5 @@
-INSERT INTO users (password,email,sex,age,qualification_type_cd,city_type_cd,nickname,salary,deleted_yn,created_at,updated_at) VALUES
-	 ('123456','test@naver.com','M',25,'PROFESSION',50130,'테스트',100,0,'2024-05-18 11:57:10','2024-05-18 11:57:10');
+INSERT INTO users (password,email,sex,age,qualification_type_cd,city_type_cd,nickname,salary,salary_day, deleted_yn,created_at,updated_at) VALUES
+	 ('123456','test@naver.com','M',25,'PROFESSION',50130,'테스트',100,25,0,'2024-05-18 11:57:10','2024-05-18 11:57:10');
 INSERT INTO user_goals (user_id, goal_type_cd, goal_specific_id, goal_begin_date, duration, amount, deleted_yn, created_at, updated_at) VALUES
 	 (1,'HOUSE',1,'20240520',30,14600000000,0,'2024-05-20 00:17:37','2024-05-20 00:17:37'),
 	 (1,'CAR',1,'20240520',10,95400000,0,'2024-05-20 00:19:59','2024-05-20 00:19:59');

@@ -7,6 +7,7 @@ import static com.project.hana_piece.account.util.AccountNumberGenerator.generat
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.domain.AccountTransaction;
 import com.project.hana_piece.account.domain.AccountType;
+import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
 import com.project.hana_piece.account.dto.AccountDailyTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
@@ -18,6 +19,7 @@ import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
 import com.project.hana_piece.account.exception.AccountInvalidException;
 import com.project.hana_piece.account.exception.AccountNotFoundException;
+import com.project.hana_piece.account.projection.AccountAutoDebitSummary;
 import com.project.hana_piece.account.projection.UserGoalAccountSummary;
 import com.project.hana_piece.account.repository.AccountRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepository;
@@ -69,7 +71,7 @@ public class AccountService {
 
         // 기존 등록된 계좌들 계좌 타입 초기화
         beforeAccountList.forEach(account -> {
-            if(isParkingAccountType(account.getAccountTypeCd())) {
+            if(!isParkingAccountType(account.getAccountTypeCd()) || !isInstallmentSavingAccountType(account.getAccountTypeCd())) {
                 account.setAccountTypeCd(CHECKING);
             }
         });
@@ -183,5 +185,10 @@ public class AccountService {
         }
 
         return new AccountSavingGetResponse(savingAccount.getAccountId(), savingAccount.getAccountNumber());
+    }
+
+    public List<AccountAutoDebitAdjustGetResponse> findAccountAutoDebitAdjust(Long userId) {
+        List<AccountAutoDebitSummary> autoDebitAccountList = accountRepository.findAutoDebitAccount(userId);
+        return autoDebitAccountList.stream().map(AccountAutoDebitAdjustGetResponse::fromProjection).toList();
     }
 }

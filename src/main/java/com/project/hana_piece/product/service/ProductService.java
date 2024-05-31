@@ -72,7 +72,7 @@ public class ProductService {
 
         // 등록된 적금 목록 생성
         List<EnrolledProductResponse> enrolledProductResponses = enrolledProducts.stream()
-                .map(EnrolledProductResponse::new)
+                .map(EnrolledProductResponse::fromEntity)
                 .toList();
 
         return new RecommendationResponse(recommendedProducts, enrolledProductResponses);

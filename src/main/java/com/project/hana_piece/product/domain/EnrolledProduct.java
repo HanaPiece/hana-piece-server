@@ -2,24 +2,13 @@ package com.project.hana_piece.product.domain;
 
 import com.project.hana_piece.common.domain.BaseEntity;
 import com.project.hana_piece.goal.domain.UserGoal;
-import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
-import com.project.hana_piece.product.dto.EnrollProductRequest;
-import com.project.hana_piece.product.exception.ProductNotFoundException;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import java.math.BigInteger;
-
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigInteger;
 
 @Entity(name = "enrolled_products")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -55,7 +44,5 @@ public class EnrolledProduct extends BaseEntity {
     @Column(name="auto_renewal")
     private boolean autoRenewal;   //yyyyMM
 
-    public Product getProduct() {
-        return product;
-    }
+
 }

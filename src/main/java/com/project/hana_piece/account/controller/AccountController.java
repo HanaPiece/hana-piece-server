@@ -1,6 +1,7 @@
 package com.project.hana_piece.account.controller;
 
 import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
+import com.project.hana_piece.account.dto.AccountAutoDebitAdjustUpsertRequest;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
@@ -87,5 +88,11 @@ public class AccountController {
     public ResponseEntity<List<AccountAutoDebitAdjustGetResponse>> findAccountAutoDebitAdjust(@AuthenticationPrincipal Long userId) {
         List<AccountAutoDebitAdjustGetResponse> response = accountService.findAccountAutoDebitAdjust(userId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/auto-debit/adjust")
+    public ResponseEntity<Void> updateAccountAutoDebitAdjust(AccountAutoDebitAdjustUpsertRequest request) {
+        accountService.updateAccountAutoDebitAdjust(request);
+        return ResponseEntity.noContent().build();
     }
 }

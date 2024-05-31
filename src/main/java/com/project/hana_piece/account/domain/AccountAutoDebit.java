@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,5 +34,18 @@ public class AccountAutoDebit extends BaseEntity {
     private Long autoDebitAmount;
 
     @Column(name = "auto_debit_day")
-    private Byte autoDebitDay;
+    private Integer autoDebitDay;
+
+    public void setAutoDebitAmount(Long amount) {
+        this.autoDebitAmount = amount;
+    }
+
+    @Builder
+    public AccountAutoDebit(Account account, Long targetAccountId, Long autoDebitAmount,
+        Integer autoDebitDay) {
+        this.account = account;
+        this.targetAccountId = targetAccountId;
+        this.autoDebitAmount = autoDebitAmount;
+        this.autoDebitDay = autoDebitDay;
+    }
 }

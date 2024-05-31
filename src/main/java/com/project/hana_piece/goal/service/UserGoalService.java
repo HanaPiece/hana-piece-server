@@ -53,37 +53,7 @@ public class UserGoalService {
     public UserGoalDetailGetResponse findUserGoalByIdAndUserId(Long goalUserId, Long userId) {
         UserGoal userGoal = userGoalRepository.findByUserGoalIdAndUserUserId(goalUserId, userId)
                 .orElseThrow(() -> new UserGoalNotFoundException(goalUserId));
-        return mapToUserGoalDetailGetResponse(userGoal);
-    }
-
-    private UserGoalDetailGetResponse mapToUserGoalDetailGetResponse(UserGoal userGoal) {
-        UserGoalDetailGetResponse.GoalDetail detail = null;
-
-        switch (userGoal.getGoalTypeCd()) {
-            case "HOUSE":
-                Apartment apartment = apartmentRepository.findById(userGoal.getGoalSpecificId())
-                        .orElse(null);
-                if (apartment != null) {
-                    detail = new ApartmentDetail(apartment.getApartmentNm(), apartment.getApartmentPrice(), apartment.getRegionNm(), apartment.getExclusiveArea());
-                }
-                break;
-            case "CAR":
-                Car car = carRepository.findById(userGoal.getGoalSpecificId())
-                        .orElse(null);
-                if (car != null) {
-                    detail = new CarDetail(car.getCarNm(), car.getCarPrice());
-                }
-                break;
-            case "WISH":
-                Wish wish = wishRepository.findById(userGoal.getGoalSpecificId())
-                        .orElse(null);
-                if (wish != null) {
-                    detail = new WishDetail(wish.getWishNm(), wish.getWishPrice());
-                }
-                break;
-        }
-
-        return new UserGoalDetailGetResponse(userGoal.getGoalTypeCd(), userGoal.getGoalSpecificId(), detail);
+        return UserGoalDetailGetResponse.fromEntity(userGoal, apartmentRepository, carRepository, wishRepository);
     }
 
     @Transactional

@@ -89,7 +89,7 @@ public class ProductService {
 
         GeminiPrompt geminiPrompt = new GeminiPrompt(promptMessage.toString());
 
-        GeminiCallResponse aiResponse = aiService.callGenerativeLanguageApi(geminiPrompt);
+        GeminiCallResponse aiResponse =  aiService.callGenerativeLanguageApi(geminiPrompt);
         // json 파싱
         // 응답
         String aiResponseMessage = aiResponse.message();

@@ -5,9 +5,11 @@ import static com.project.hana_piece.account.domain.AccountType.isParkingAccount
 import static com.project.hana_piece.account.util.AccountNumberGenerator.generateAccountNumber;
 
 import com.project.hana_piece.account.domain.Account;
+import com.project.hana_piece.account.domain.AccountAutoDebit;
 import com.project.hana_piece.account.domain.AccountTransaction;
 import com.project.hana_piece.account.domain.AccountType;
 import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
+import com.project.hana_piece.account.dto.AccountAutoDebitAdjustUpsertRequest;
 import com.project.hana_piece.account.dto.AccountDailyTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountGetResponse;
 import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
@@ -17,10 +19,12 @@ import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
 import com.project.hana_piece.account.dto.AccountTypeRegRequest;
 import com.project.hana_piece.account.dto.AccountUpsertResponse;
 import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
+import com.project.hana_piece.account.exception.AccountAutoDebitNotFoundException;
 import com.project.hana_piece.account.exception.AccountInvalidException;
 import com.project.hana_piece.account.exception.AccountNotFoundException;
 import com.project.hana_piece.account.projection.AccountAutoDebitSummary;
 import com.project.hana_piece.account.projection.UserGoalAccountSummary;
+import com.project.hana_piece.account.repository.AccountAutoDebitRepository;
 import com.project.hana_piece.account.repository.AccountRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepository;
 import com.project.hana_piece.goal.domain.UserGoal;
@@ -44,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final AccountAutoDebitRepository accountAutoDebitRepository;
     private final AccountTransactionRepository accountTransactionRepository;
     private final UserRepository userRepository;
     private final UserGoalRepository userGoalRepository;
@@ -60,11 +65,13 @@ public class AccountService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void registerAccountType(Long userId, AccountTypeRegRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
         // 등록할 계좌
-        Optional<Account> salaryAccount = accountRepository.findById(request.salaryAccountId());
-        Optional<Account> savingAccount = accountRepository.findById(request.savingAccountId());
-        Optional<Account> lifeAccount = accountRepository.findById(request.lifeAccountId());
-        Optional<Account> spareAccount = accountRepository.findById(request.spareAccountId());
+        Account salaryAccount = accountRepository.findById(request.salaryAccountId()).orElseThrow(()->new AccountNotFoundException(request.salaryAccountId()));
+        Account savingAccount = accountRepository.findById(request.savingAccountId()).orElseThrow(()->new AccountNotFoundException(request.savingAccountId()));
+        Account lifeAccount = accountRepository.findById(request.lifeAccountId()).orElseThrow(()->new AccountNotFoundException(request.lifeAccountId()));
+        Account spareAccount = accountRepository.findById(request.spareAccountId()).orElseThrow(()->new AccountNotFoundException(request.spareAccountId()));
 
         // 사용자의 기존 등록된 계좌
         List<Account> beforeAccountList = accountRepository.findCheckingAccount(userId);
@@ -76,10 +83,27 @@ public class AccountService {
             }
         });
 
-        salaryAccount.ifPresent(account -> registerSpecificAccountType(userId, account, SALARY));
-        savingAccount.ifPresent(account -> registerSpecificAccountType(userId, account, SAVING));
-        lifeAccount.ifPresent(account -> registerSpecificAccountType(userId, account, LIFE));
-        spareAccount.ifPresent(account -> registerSpecificAccountType(userId, account, SPARE));
+        // Default 자동이체 생성
+        createAutoDebitIfNotExists(salaryAccount, savingAccount, user.getSalaryDay());
+        createAutoDebitIfNotExists(salaryAccount, lifeAccount, user.getSalaryDay());
+        createAutoDebitIfNotExists(salaryAccount, spareAccount, user.getSalaryDay());
+
+        registerSpecificAccountType(userId, salaryAccount, SALARY);
+        registerSpecificAccountType(userId, savingAccount, SAVING);
+        registerSpecificAccountType(userId, lifeAccount, LIFE);
+        registerSpecificAccountType(userId, spareAccount, SPARE);
+    }
+
+    private void createAutoDebitIfNotExists(Account fromAccount, Account toAccount, int debitDay) {
+        if (!accountAutoDebitRepository.existsByAccountAccountIdAndTargetAccountId(fromAccount.getAccountId(), toAccount.getAccountId())) {
+            AccountAutoDebit accountAutoDebit = AccountAutoDebit.builder()
+                .account(fromAccount)
+                .targetAccountId(toAccount.getAccountId())
+                .autoDebitAmount(0L)
+                .autoDebitDay(debitDay)
+                .build();
+            accountAutoDebitRepository.save(accountAutoDebit);
+        }
     }
 
     public void registerSpecificAccountType(Long userId, Account account, AccountType accountType) {
@@ -190,5 +214,18 @@ public class AccountService {
     public List<AccountAutoDebitAdjustGetResponse> findAccountAutoDebitAdjust(Long userId) {
         List<AccountAutoDebitSummary> autoDebitAccountList = accountRepository.findAutoDebitAccount(userId);
         return autoDebitAccountList.stream().map(AccountAutoDebitAdjustGetResponse::fromProjection).toList();
+    }
+
+    public void updateAccountAutoDebitAdjust(AccountAutoDebitAdjustUpsertRequest request) {
+        Long savingId = request.savingAccountAutoDebitId();
+        Long lifeId = request.lifeAccountAutoDebitId();
+        Long spareId = request.spareAccountAutoDebitId();
+        AccountAutoDebit savingAccountAutoDebit = accountAutoDebitRepository.findById(savingId).orElseThrow(() -> new AccountAutoDebitNotFoundException(savingId));
+        AccountAutoDebit lifeAccountAutoDebit = accountAutoDebitRepository.findById(lifeId).orElseThrow(() -> new AccountAutoDebitNotFoundException(lifeId));
+        AccountAutoDebit spareAccountAutoDebit = accountAutoDebitRepository.findById(spareId).orElseThrow(() -> new AccountAutoDebitNotFoundException(spareId));
+
+        savingAccountAutoDebit.setAutoDebitAmount(request.savingAutoDebitAmount());
+        lifeAccountAutoDebit.setAutoDebitAmount(request.lifeAutoDebitAmount());
+        spareAccountAutoDebit.setAutoDebitAmount(request.spareAutoDebitAmount());
     }
 }

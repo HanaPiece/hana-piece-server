@@ -1,13 +1,16 @@
 package com.project.hana_piece.goal.service;
 
-import com.project.hana_piece.goal.domain.*;
+import com.project.hana_piece.goal.domain.GoalType;
+import com.project.hana_piece.goal.domain.UserGoal;
 import com.project.hana_piece.goal.dto.UserGoalDetailGetResponse;
-import com.project.hana_piece.goal.dto.UserGoalDetailGetResponse.*;
 import com.project.hana_piece.goal.dto.UserGoalGetResponse;
 import com.project.hana_piece.goal.dto.UserGoalTypeGetResponse;
 import com.project.hana_piece.goal.dto.UserGoalUpsertRequest;
 import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
-import com.project.hana_piece.goal.repository.*;
+import com.project.hana_piece.goal.repository.ApartmentRepository;
+import com.project.hana_piece.goal.repository.CarRepository;
+import com.project.hana_piece.goal.repository.UserGoalRepository;
+import com.project.hana_piece.goal.repository.WishRepository;
 import com.project.hana_piece.user.domain.User;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;

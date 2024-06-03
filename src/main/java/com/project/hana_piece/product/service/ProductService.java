@@ -15,6 +15,7 @@ import com.project.hana_piece.goal.repository.UserGoalRepository;
 import com.project.hana_piece.product.domain.EnrolledProduct;
 import com.project.hana_piece.product.domain.Product;
 import com.project.hana_piece.product.dto.*;
+import com.project.hana_piece.product.exception.AlreadyEnrolledProductException;
 import com.project.hana_piece.product.exception.InstallmentSavingNotFoundException;
 import com.project.hana_piece.product.exception.ProductNotFoundException;
 import com.project.hana_piece.product.exception.SavingNotFoundException;
@@ -130,6 +131,11 @@ public class ProductService {
                 .orElseThrow(() -> new UserGoalNotFoundException(request.userGoalId()));
 
         User user = userGoal.getUser();
+
+        boolean alreadyEnrolled = enrolledProductRepository.existsByProductAndUserGoal(product, userGoal);
+        if (alreadyEnrolled) {
+            throw new AlreadyEnrolledProductException();
+        }
 
         EnrolledProduct enrolledProduct = EnrolledProduct.builder()
                 .product(product)

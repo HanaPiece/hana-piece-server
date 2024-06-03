@@ -11,7 +11,7 @@ import java.util.List;
 import com.project.hana_piece.product.service.ProductService;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
 
@@ -22,13 +22,6 @@ public class ProductController {
         List<ProductGetResponse> response = productService.findProducts();
         return ResponseEntity.ok(response);
     }
-
-
-//    @GetMapping("/products/recommend")
-//    public ResponseEntity<List<ProductGetResponse>> recommendProducts(@RequestParam String category) {
-//        List<ProductGetResponse> response = productService.recommendProducts(category);
-//        return ResponseEntity.ok(response);
-//    }
 
     @GetMapping("/recommend/{userGoalId}")
     public ResponseEntity<RecommendationResponse> recommendProducts(@PathVariable Long userGoalId) {

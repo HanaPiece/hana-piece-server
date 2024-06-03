@@ -33,7 +33,7 @@ public class EnrolledProduct extends BaseEntity {
     private BigInteger initialAmount;
 
     @Column(name="auto_debit_amount")
-    private Long autoDebitAmount;
+    private Long autoDproebitAmount;
 
     @Column(name="auto_debit_day")
     private Integer  autoDebitDay;

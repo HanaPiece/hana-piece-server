@@ -51,7 +51,6 @@ public class ProductService {
                 .map(enrolledProduct -> enrolledProduct.getProduct().getProductId())
                 .toList();
 
-        GeminiCallResponse aiResponse =  aiService.callGenerativeLanguageApi(geminiPrompt);
         // json 파싱
         // 응답
         // 추천 상품 목록 생성

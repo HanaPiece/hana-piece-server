@@ -79,6 +79,7 @@ public class UserGoalService {
     private UserGoal createUserGoal(User user, UserGoalUpsertRequest request) {
         return UserGoal.builder()
                 .user(user)
+                .goalAlias(request.goalAlias())
                 .goalTypeCd(request.goalTypeCd())
                 .goalSpecificId(request.goalSpecificId())
                 .goalBeginDate(request.goalBeginDate())
@@ -88,6 +89,7 @@ public class UserGoalService {
     }
 
     private UserGoal updateUserGoal(UserGoal existingUserGoal, UserGoalUpsertRequest request) {
+        existingUserGoal.setGoalAlias(request.goalAlias());
         existingUserGoal.setGoalTypeCd(GoalType.valueOf(request.goalTypeCd()));
         existingUserGoal.setGoalSpecificId(request.goalSpecificId());
         existingUserGoal.setGoalBeginDate(request.goalBeginDate());

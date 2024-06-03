@@ -6,9 +6,10 @@ import com.project.hana_piece.goal.repository.CarRepository;
 import com.project.hana_piece.goal.repository.WishRepository;
 
 public record UserGoalDetailGetResponse(
+        String goalAlias,
         String goalTypeCd,
         Long goalSpecificId,
-            GoalDetail detail
+        GoalDetail detail
 ) {
     public interface GoalDetail {}
 
@@ -43,6 +44,6 @@ public record UserGoalDetailGetResponse(
                 break;
         }
 
-        return new UserGoalDetailGetResponse(userGoal.getGoalTypeCd(), userGoal.getGoalSpecificId(), detail);
+        return new UserGoalDetailGetResponse(userGoal.getGoalAlias(), userGoal.getGoalTypeCd(), userGoal.getGoalSpecificId(), detail);
     }
 }

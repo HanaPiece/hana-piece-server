@@ -21,6 +21,9 @@ public class UserGoal extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "goal_alias")
+    private String goalAlias;
+
     @Column(name = "goal_type_cd")
     private String goalTypeCd;
 
@@ -38,6 +41,8 @@ public class UserGoal extends BaseEntity {
 
     public void setUser(User user) { this.user = user; }
 
+    public void setGoalAlias(String goalAlias){ this.goalAlias = goalAlias; }
+
     public void setGoalTypeCd(GoalType goalTypeCd){ this.goalTypeCd = goalTypeCd.getProperty(); }
 
     public void setGoalSpecificId(Long goalSpecificId) { this.goalSpecificId = goalSpecificId; }
@@ -49,8 +54,9 @@ public class UserGoal extends BaseEntity {
     public void setAmount(Long amount) { this.amount = amount; }
 
     @Builder
-    public UserGoal(User user, String goalTypeCd, Long goalSpecificId, String goalBeginDate, Integer duration, Long amount) {
+    public UserGoal(User user, String goalAlias, String goalTypeCd, Long goalSpecificId, String goalBeginDate, Integer duration, Long amount) {
         this.user = user;
+        this.goalAlias = goalAlias;
         this.goalTypeCd = goalTypeCd;
         this.goalSpecificId = goalSpecificId;
         this.goalBeginDate = goalBeginDate;

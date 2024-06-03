@@ -50,4 +50,8 @@ public class User extends BaseEntity {
 
     @Column(name = "salary_day")
     private Integer salaryDay;
+
+    public void setSalary(Long salary) {
+        this.salary = salary;
+    }
 }

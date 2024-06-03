@@ -8,7 +8,7 @@ import com.project.hana_piece.goal.repository.WishRepository;
 public record UserGoalDetailGetResponse(
         String goalTypeCd,
         Long goalSpecificId,
-        GoalDetail detail
+            GoalDetail detail
 ) {
     public interface GoalDetail {}
 

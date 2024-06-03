@@ -151,7 +151,7 @@ public class ProductService {
                 .enrolledProduct(enrolledProduct)
                 .accountNumber(accountNumber)
                 .accountType(AccountType.INSTALLMENT_SAVING)
-                .accountAlias("적금 가입 계좌")
+                .accountAlias(product.getProductNm() + " 계좌")
                 .balance(0L)
                 .build();
 

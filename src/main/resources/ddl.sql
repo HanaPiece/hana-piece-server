@@ -64,6 +64,7 @@ CREATE TABLE goal_type (
 CREATE TABLE user_goals (
     user_goal_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT,
+    goal_alias VARCHAR(50),
     goal_type_cd VARCHAR(50),
     goal_specific_id BIGINT,
     goal_begin_date VARCHAR(8), 

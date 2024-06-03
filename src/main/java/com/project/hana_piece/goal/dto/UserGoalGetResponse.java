@@ -5,6 +5,7 @@ import com.project.hana_piece.goal.domain.UserGoal;
 public record UserGoalGetResponse(
         Long userGoalId,
         Long userId,
+        String goalAlias,
         String goalTypeCd,
         Long goalSpecificId,
         String goalBeginDate,
@@ -17,6 +18,7 @@ public record UserGoalGetResponse(
         return new UserGoalGetResponse(
                 userGoal.getUserGoalId(),
                 userId,
+                userGoal.getGoalAlias(),
                 userGoal.getGoalTypeCd(),
                 userGoal.getGoalSpecificId(),
                 userGoal.getGoalBeginDate(),

@@ -1,17 +1,13 @@
 package com.project.hana_piece.user.service;
 
-import com.project.hana_piece.account.domain.Account;
-import com.project.hana_piece.account.domain.AccountAutoDebit;
-import com.project.hana_piece.account.repository.AccountRepository;
 import com.project.hana_piece.common.util.JwtUtil;
 import com.project.hana_piece.user.domain.User;
 import com.project.hana_piece.user.dto.UserGetResponse;
 import com.project.hana_piece.user.dto.UserLoginRequest;
 import com.project.hana_piece.user.dto.UserLoginResponse;
-import com.project.hana_piece.user.dto.UserSalaryGetResponse;
+import com.project.hana_piece.user.dto.UserSalaryUpsertResponse;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,45 +17,29 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final AccountRepository accountRepository;
     private final JwtUtil jwtUtil;
 
 
     public UserLoginResponse login(UserLoginRequest dto) {
-        User loginUser = userRepository.findByPassword(dto.password()).orElseThrow(()-> new UserNotFoundException());
+        User loginUser = userRepository.findByPassword(dto.password()).orElseThrow(UserNotFoundException::new);
         String generatedAccessToken = jwtUtil.generateAccessToken(loginUser.getUserId());
 
-        return new UserLoginResponse(generatedAccessToken);
+        return new UserLoginResponse(generatedAccessToken, loginUser.getNickname(), loginUser.getSalary());
     }
 
     public UserGetResponse findByUserId(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException());
+            .orElseThrow(() -> new UserNotFoundException(userId));
         return UserGetResponse.fromEntity(user);
     }
 
-//    @Transactional(readOnly = true)
-//    public UserSalaryGetResponse getUserSalary(Long userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
-//
-////        Account account = accountRepository.findByUserIdAndAccountTypeId(userId, 1L)
-////                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-//
-////        AccountAutoDebit accountAutoDebit = accountAutoDebitRepository.findByAccount(account)
-////                .orElseThrow(() -> new IllegalArgumentException("Auto Debit Information not found"));
-//
-//        return new UserSalaryGetResponse(
-//                user.getUserId(),
-//                user.getEmail(),
-//                user.getSex(),
-//                user.getAge(),
-//                user.getQualificationTypeCd(),
-//                user.getCityType() != null ? user.getCityType().getCityTypeNm() : null,
-//                user.getNickname(),
-//                user.getSalary(),
-//                account.getAccountNumber(),
-//                accountAutoDebit.getAutoDebitDay()
-//        );
-//    }
+    @Transactional
+    public UserSalaryUpsertResponse upsertUserSalary(Long userId, Long newSalary) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.setSalary(newSalary);
+
+        return new UserSalaryUpsertResponse(user.getSalary());
+    }
 }

@@ -63,7 +63,7 @@ public class ProductService {
                 .map(enrolledProduct -> enrolledProduct.getProduct().getProductId())
                 .toList();
 
-        // 추천 상품 목록 생성
+      // 추천 상품 목록 생성
         String promptMessage = buildPromptMessage(userGoal, products, enrolledProductIds);
         GeminiPrompt geminiPrompt = new GeminiPrompt(promptMessage);
         GeminiCallResponse aiResponse = aiService.callGenerativeLanguageApi(geminiPrompt);

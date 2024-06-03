@@ -15,6 +15,7 @@ import com.project.hana_piece.goal.repository.UserGoalRepository;
 import com.project.hana_piece.product.domain.EnrolledProduct;
 import com.project.hana_piece.product.domain.Product;
 import com.project.hana_piece.product.dto.*;
+import com.project.hana_piece.product.exception.InstallmentSavingNotFoundException;
 import com.project.hana_piece.product.exception.ProductNotFoundException;
 import com.project.hana_piece.product.exception.SavingNotFoundException;
 import com.project.hana_piece.product.repository.EnrolledProductRepository;
@@ -122,21 +123,17 @@ public class ProductService {
 
     @Transactional
     public void enrollProduct(EnrollProductRequest request) {
-        Optional<Product> productOptional = productRepository.findById(request.productId());
-        if (productOptional.isEmpty()) {
-            throw new ProductNotFoundException(request.productId());
-        }
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new ProductNotFoundException(request.productId()));
 
-        Optional<UserGoal> userGoalOptional = userGoalRepository.findById(request.userGoalId());
-        if (userGoalOptional.isEmpty()) {
-            throw new UserGoalNotFoundException(request.userGoalId());
-        }
+        UserGoal userGoal = userGoalRepository.findById(request.userGoalId())
+                .orElseThrow(() -> new UserGoalNotFoundException(request.userGoalId()));
 
-        User user = userGoalOptional.get().getUser();
+        User user = userGoal.getUser();
 
         EnrolledProduct enrolledProduct = EnrolledProduct.builder()
-                .product(productOptional.get())
-                .userGoal(userGoalOptional.get())
+                .product(product)
+                .userGoal(userGoal)
                 .contractPeriod(request.contractPeriod())
                 .initialAmount(request.initialAmount())
                 .autoDebitAmount(request.autoDebitAmount())
@@ -158,19 +155,14 @@ public class ProductService {
                 .balance(0L)
                 .build();
 
-        accountRepository.save(newAccount);
+        Account savedAccount = accountRepository.save(newAccount);
 
-        Optional<Account> savingAccountOptional = accountRepository.findSavingAccount(user.getUserId());
-
-        if (savingAccountOptional.isEmpty()) {
-            throw new SavingNotFoundException();
-        }
-
-        Account savingAccount = savingAccountOptional.get();
+        Account savingAccount = accountRepository.findSavingAccount(user.getUserId())
+                .orElseThrow(()->new SavingNotFoundException());
 
         AccountAutoDebit accountAutoDebit = AccountAutoDebit.builder()
-                .account(newAccount)
-                .targetAccountId(savingAccount.getAccountId())
+                .account(savingAccount)
+                .targetAccountId(savedAccount.getAccountId())
                 .autoDebitAmount(enrolledProduct.getAutoDebitAmount())
                 .autoDebitDay(enrolledProduct.getAutoDebitDay())
                 .build();

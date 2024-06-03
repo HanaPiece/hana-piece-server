@@ -4,6 +4,6 @@ import com.project.hana_piece.common.exception.EntityNotFoundException;
 
 public class SavingNotFoundException extends EntityNotFoundException {
     public SavingNotFoundException() {
-        super("Could not find SAVING account.");
+        super("Could not find Saving Account");
     }
 }

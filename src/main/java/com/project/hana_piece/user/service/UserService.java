@@ -39,7 +39,6 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setSalary(newSalary);
-        userRepository.save(user);
 
         return new UserSalaryUpsertResponse(user.getSalary());
     }

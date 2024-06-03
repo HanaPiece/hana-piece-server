@@ -7,7 +7,7 @@ public record EnrollProductRequest (
         Long userGoalId,
         Integer contractPeriod,
         BigInteger initialAmount,
-        BigInteger autoDebitAmount,
+        Long autoDebitAmount,
         Integer autoDebitDay,
         String maturityDate,
         boolean autoRenewal

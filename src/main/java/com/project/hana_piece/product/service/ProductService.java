@@ -1,5 +1,11 @@
 package com.project.hana_piece.product.service;
 
+import com.project.hana_piece.account.domain.Account;
+import com.project.hana_piece.account.domain.AccountAutoDebit;
+import com.project.hana_piece.account.domain.AccountType;
+import com.project.hana_piece.account.repository.AccountAutoDebitRepository;
+import com.project.hana_piece.account.repository.AccountRepository;
+import com.project.hana_piece.account.util.AccountNumberGenerator;
 import com.project.hana_piece.ai.dto.GeminiCallResponse;
 import com.project.hana_piece.ai.service.AiService;
 import com.project.hana_piece.ai.vo.GeminiPrompt;
@@ -9,9 +15,13 @@ import com.project.hana_piece.goal.repository.UserGoalRepository;
 import com.project.hana_piece.product.domain.EnrolledProduct;
 import com.project.hana_piece.product.domain.Product;
 import com.project.hana_piece.product.dto.*;
+import com.project.hana_piece.product.exception.InstallmentSavingNotFoundException;
 import com.project.hana_piece.product.exception.ProductNotFoundException;
+import com.project.hana_piece.product.exception.SavingNotFoundException;
 import com.project.hana_piece.product.repository.EnrolledProductRepository;
 import com.project.hana_piece.product.repository.ProductRepository;
+import com.project.hana_piece.user.domain.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +36,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final EnrolledProductRepository enrolledProductRepository;
+    private final AccountRepository accountRepository;
+    private final AccountAutoDebitRepository accountAutoDebitRepository;
     private final UserGoalRepository userGoalRepository;
     private final AiService aiService;
 
@@ -51,9 +63,7 @@ public class ProductService {
                 .map(enrolledProduct -> enrolledProduct.getProduct().getProductId())
                 .toList();
 
-        // json 파싱
-        // 응답
-        // 추천 상품 목록 생성
+      // 추천 상품 목록 생성
         String promptMessage = buildPromptMessage(userGoal, products, enrolledProductIds);
         GeminiPrompt geminiPrompt = new GeminiPrompt(promptMessage);
         GeminiCallResponse aiResponse = aiService.callGenerativeLanguageApi(geminiPrompt);
@@ -111,20 +121,19 @@ public class ProductService {
         return ProductDetailResponse.fromProduct(productOptional.get());
     }
 
+    @Transactional
     public void enrollProduct(EnrollProductRequest request) {
-        Optional<Product> productOptional = productRepository.findById(request.productId());
-        if (productOptional.isEmpty()) {
-            throw new ProductNotFoundException(request.productId());
-        }
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new ProductNotFoundException(request.productId()));
 
-        Optional<UserGoal> userGoalOptional = userGoalRepository.findById(request.userGoalId());
-        if (userGoalOptional.isEmpty()) {
-            throw new UserGoalNotFoundException(request.userGoalId());
-        }
+        UserGoal userGoal = userGoalRepository.findById(request.userGoalId())
+                .orElseThrow(() -> new UserGoalNotFoundException(request.userGoalId()));
+
+        User user = userGoal.getUser();
 
         EnrolledProduct enrolledProduct = EnrolledProduct.builder()
-                .product(productOptional.get())
-                .userGoal(userGoalOptional.get())
+                .product(product)
+                .userGoal(userGoal)
                 .contractPeriod(request.contractPeriod())
                 .initialAmount(request.initialAmount())
                 .autoDebitAmount(request.autoDebitAmount())
@@ -134,6 +143,31 @@ public class ProductService {
                 .build();
 
         enrolledProductRepository.save(enrolledProduct);
+
+        String accountNumber = AccountNumberGenerator.generateAccountNumber();
+
+        Account newAccount = Account.builder()
+                .user(user)
+                .enrolledProduct(enrolledProduct)
+                .accountNumber(accountNumber)
+                .accountType(AccountType.INSTALLMENT_SAVING)
+                .accountAlias(product.getProductNm() + " 계좌")
+                .balance(0L)
+                .build();
+
+        Account savedAccount = accountRepository.save(newAccount);
+
+        Account savingAccount = accountRepository.findSavingAccount(user.getUserId())
+                .orElseThrow(()->new SavingNotFoundException());
+
+        AccountAutoDebit accountAutoDebit = AccountAutoDebit.builder()
+                .account(savingAccount)
+                .targetAccountId(savedAccount.getAccountId())
+                .autoDebitAmount(enrolledProduct.getAutoDebitAmount())
+                .autoDebitDay(enrolledProduct.getAutoDebitDay())
+                .build();
+
+        accountAutoDebitRepository.save(accountAutoDebit);
     }
 }
 

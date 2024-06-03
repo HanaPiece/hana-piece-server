@@ -102,14 +102,12 @@ public class ProductService {
                 .append("이 내용의 텍스트만 전달해줘. ")
                 .append("아래는 상품 리스트야: ");
 
-        for (Product product : products) {
-            if (!enrolledProductIds.contains(product.getProductId())) {
-                promptMessage.append("ProductId: ").append(product.getProductId())
+        products.stream()
+                .filter(product -> !enrolledProductIds.contains(product.getProductId()))
+                .forEach(product -> promptMessage.append("ProductId: ").append(product.getProductId())
                         .append(", ProductName: ").append(product.getProductNm())
                         .append(", ProductTermYear: ").append(product.getTermYear())
-                        .append(", ProductInterestRate: ").append(product.getInterestRate()).append("; ");
-            }
-        }
+                        .append(", ProductInterestRate: ").append(product.getInterestRate()).append("; "));
 
         return promptMessage.toString();
     }

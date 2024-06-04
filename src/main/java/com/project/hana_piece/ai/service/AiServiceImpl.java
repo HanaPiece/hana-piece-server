@@ -3,6 +3,7 @@ package com.project.hana_piece.ai.service;
 import static com.project.hana_piece.ai.vo.GeminiResponseField.TEXT;
 
 import com.google.gson.JsonObject;
+import com.project.hana_piece.ai.dto.GeminiCallRequest;
 import com.project.hana_piece.ai.dto.GeminiCallResponse;
 import com.project.hana_piece.ai.exception.GeminiNetworkIOException;
 import com.project.hana_piece.ai.vo.GeminiPrompt;
@@ -48,9 +49,12 @@ public class AiServiceImpl implements AiService{
         WebClient webClient = WebClient.create(BASE_URL + API_KEY);
 
         try {
+            GeminiCallRequest geminiCallRequest = GeminiCallRequest.fromPrompt(geminiPrompt);
+            String requestBody = jsonUtil.toJsonString(geminiCallRequest);
+
             String geminiApiResponseString = webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(geminiPrompt.getTotalPrompt())
+                .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();

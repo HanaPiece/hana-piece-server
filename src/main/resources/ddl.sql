@@ -117,7 +117,7 @@ CREATE TABLE enrolled_products (
     initial_amount BIGINT DEFAULT 0,
     auto_debit_amount BIGINT NOT NULL DEFAULT 0,
     auto_debit_day TINYINT(31) NOT NULL,
-    maturity_date varchar(6) NOT NULL,
+    maturity_date varchar(8) NOT NULL,
     auto_renewal TINYINT(1) NOT NULL DEFAULT 1,
     deleted_yn TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP   NULL DEFAULT now(),

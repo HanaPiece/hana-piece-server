@@ -9,6 +9,8 @@ public record UserGoalDetailGetResponse(
         String goalAlias,
         String goalTypeCd,
         Long goalSpecificId,
+        String goalBeginDate,
+        Integer duration,
         GoalDetail detail
 ) {
     public interface GoalDetail {}
@@ -44,6 +46,6 @@ public record UserGoalDetailGetResponse(
                 break;
         }
 
-        return new UserGoalDetailGetResponse(userGoal.getGoalAlias(), userGoal.getGoalTypeCd(), userGoal.getGoalSpecificId(), detail);
+        return new UserGoalDetailGetResponse(userGoal.getGoalAlias(), userGoal.getGoalTypeCd(), userGoal.getGoalSpecificId(), userGoal.getGoalBeginDate(), userGoal.getDuration(), detail);
     }
 }

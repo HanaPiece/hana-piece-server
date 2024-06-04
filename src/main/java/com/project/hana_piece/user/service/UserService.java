@@ -34,12 +34,13 @@ public class UserService {
     }
 
     @Transactional
-    public UserSalaryUpsertResponse upsertUserSalary(Long userId, Long newSalary) {
+    public UserSalaryUpsertResponse upsertUserSalary(Long userId, Long newSalary, Integer newSalaryDay) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setSalary(newSalary);
+        user.setSalaryDay(newSalaryDay);
 
-        return new UserSalaryUpsertResponse(user.getSalary());
+        return new UserSalaryUpsertResponse(user.getSalary(), user.getSalaryDay());
     }
 }

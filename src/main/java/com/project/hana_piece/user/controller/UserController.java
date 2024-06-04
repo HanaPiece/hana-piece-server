@@ -29,7 +29,7 @@ public class UserController {
 
     @PostMapping("/salary")
     public ResponseEntity<UserSalaryUpsertResponse> saveSalary(@AuthenticationPrincipal Long userId, @RequestBody UserSalaryUpsertRequest salaryRequest) {
-        UserSalaryUpsertResponse response = userService.upsertUserSalary(userId, salaryRequest.newSalary());
+        UserSalaryUpsertResponse response = userService.upsertUserSalary(userId, salaryRequest.newSalary(), salaryRequest.newSalaryDay());
         return ResponseEntity.ok(response);
     }
 }

@@ -14,6 +14,7 @@ public interface AccountTransactionRepository extends JpaRepository<AccountTrans
         "FROM account_transactions act " +
         "WHERE DATE_FORMAT(act.created_at, '%m') = :transactionMonth " +
         "AND act.account_id = :accountId " +
-        "AND act.amount < 0", nativeQuery = true)
+        "AND act.amount < 0 " +
+        "ORDER BY act.created_at DESC", nativeQuery = true)
     List<AccountTransaction> findDailyTransactionList(@Param("accountId") Long accountId, @Param("transactionMonth") Integer transactionMonth);
 }

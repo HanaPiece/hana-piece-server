@@ -4,11 +4,8 @@ package com.project.hana_piece.common.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.project.hana_piece.ai.vo.GeminiResponseField;
 import com.project.hana_piece.common.exception.JsonElementNotFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
@@ -33,8 +30,23 @@ public class JsonUtil {
         return gson.fromJson(jsonElement, jsonObjectClass);
     }
 
+    /**
+     * String 타입의 JSON 데이터 -> JsonObject 반환
+     * @param payload
+     * @return
+     */
     public JsonObject toJson(String payload) {
         return gson.fromJson(payload, JsonObject.class);
+    }
+
+    /**
+     * 제네릭 타입의 데이터 -> JSON String 반환
+     * @param payload 
+     * @param <T>
+     * @return
+     */
+    public <T> String toJsonString(T payload) {
+        return gson.toJson(payload);
     }
 
     /**

@@ -32,6 +32,12 @@
             return ResponseEntity.ok(response);
         }
 
+        @GetMapping("/list")
+        public ResponseEntity<List<UserGoalListGetResponse>> findUserGoalList(@AuthenticationPrincipal Long userId) {
+            List<UserGoalListGetResponse> response = userGoalService.findUserGoalList(userId);
+            return ResponseEntity.ok(response);
+        }
+
         @GetMapping("/{goalUserId}")
         public ResponseEntity<UserGoalDetailGetResponse> findUserGoalById(@PathVariable Long goalUserId, @AuthenticationPrincipal Long userId) {
             UserGoalDetailGetResponse response = userGoalService.findUserGoalByIdAndUserId(goalUserId, userId);

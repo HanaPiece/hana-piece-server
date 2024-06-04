@@ -38,7 +38,7 @@ public class ApartmentService {
         String prompt = String.format("%s년 %s월 가장 최근 거래가가 %.1f억인 %s %s %d평의 가격을 선형 회귀 모델을 이용해 오차범위 50퍼센트 가격 이내에서 중간 시나리오로 최대한 정확히 예측해서 '%.1f억' 형식으로 가격만 알려줘",
                 year, month, priceInBillion, request.region(), request.apartmentNm(), request.area(), priceInBillion);
 
-        GeminiPrompt geminiPrompt = new GeminiPrompt(prompt);
+        GeminiPrompt geminiPrompt = GeminiPrompt.builder().requests(prompt).build();
         GeminiCallResponse response = aiService.callGenerativeLanguageApi(geminiPrompt);
 
         return new ApartmentPricePredictResponse(response.message());

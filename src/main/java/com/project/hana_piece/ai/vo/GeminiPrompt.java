@@ -1,17 +1,34 @@
 package com.project.hana_piece.ai.vo;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GeminiPrompt {
 
-    private final String totalPrompt;
+    private String requests;
+    private String constraints;
+    private String responseFormat;
+    private String exampleData;
 
-    public GeminiPrompt(String prompt) {
-        this.totalPrompt = createPromptJson(prompt);
+    public synchronized String getTotalPrompt() {
+        StringBuilder totalPromptBuilder = new StringBuilder();
+        totalPromptBuilder.append(requests)
+            .append(constraints)
+            .append(responseFormat)
+            .append(exampleData);
+        return totalPromptBuilder.toString();
     }
 
-    private String createPromptJson(String prompt) {
-        return "{\"contents\":[{\"parts\":[{\"text\":\""+prompt+"\"}]}]}";
+    @Builder
+    public GeminiPrompt(String requests, String constraints, String responseFormat,
+        String exampleData) {
+        this.requests = "Requests: " + requests + "\n";
+        this.constraints = "Constraints: " + constraints + "\n";
+        this.responseFormat = "ResponseFormat: " + responseFormat + "\n";
+        this.exampleData = "ExampleData: "+ exampleData + "\n";
     }
 }

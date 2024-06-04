@@ -10,8 +10,6 @@ import java.math.BigInteger;
 @Entity(name = "enrolled_products")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnrolledProduct extends BaseEntity {
 
     @Id
@@ -44,5 +42,17 @@ public class EnrolledProduct extends BaseEntity {
     @Column(name="auto_renewal")
     private boolean autoRenewal;   //yyyyMM
 
-
+    @Builder
+    public EnrolledProduct(Product product, UserGoal userGoal, Integer contractPeriod,
+        BigInteger initialAmount, Long autoDebitAmount, Integer autoDebitDay, String maturityDate,
+        boolean autoRenewal) {
+        this.product = product;
+        this.userGoal = userGoal;
+        this.contractPeriod = contractPeriod;
+        this.initialAmount = initialAmount;
+        this.autoDebitAmount = autoDebitAmount;
+        this.autoDebitDay = autoDebitDay;
+        this.maturityDate = maturityDate;
+        this.autoRenewal = autoRenewal;
+    }
 }

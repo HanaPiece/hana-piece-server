@@ -66,7 +66,7 @@ public class ProductService {
 
       // 추천 상품 목록 생성
         String promptMessage = buildPromptMessage(userGoal, products, enrolledProductIds);
-        GeminiPrompt geminiPrompt = new GeminiPrompt(promptMessage);
+        GeminiPrompt geminiPrompt = GeminiPrompt.builder().requests(promptMessage).build();
         GeminiCallResponse aiResponse = aiService.callGenerativeLanguageApi(geminiPrompt);
         String aiResponseMessage = aiResponse.message();
         String[] productIdStringList = aiResponseMessage.split(",");

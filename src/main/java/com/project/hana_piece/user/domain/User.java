@@ -54,4 +54,8 @@ public class User extends BaseEntity {
     public void setSalary(Long salary) {
         this.salary = salary;
     }
+
+    public void setSalaryDay(Integer salaryDay) {
+        this.salaryDay = salaryDay;
+    }
 }

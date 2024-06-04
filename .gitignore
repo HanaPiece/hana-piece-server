@@ -36,3 +36,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### AWS PEM Key ###
+hana_piece.pem
+hana_piece_server.pem
+
+### application-test.yml ###
+/src/test/resources/application-test.yml

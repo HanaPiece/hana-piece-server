@@ -66,7 +66,7 @@ public class UserGoalService {
         UserGoal userGoal;
         Long goalSpecificId = request.goalSpecificId();
 
-        if ("WISH".equals(request.goalTypeCd())) {
+        if (GoalType.WISH.getProperty().equals(request.goalTypeCd())) {
             Wish wish = Wish.builder()
                     .wishNm(request.goalAlias())
                     .wishPrice(request.amount())

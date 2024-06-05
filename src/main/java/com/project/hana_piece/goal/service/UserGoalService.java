@@ -2,6 +2,7 @@ package com.project.hana_piece.goal.service;
 
 import com.project.hana_piece.goal.domain.GoalType;
 import com.project.hana_piece.goal.domain.UserGoal;
+import com.project.hana_piece.goal.domain.Wish;
 import com.project.hana_piece.goal.dto.*;
 import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
 import com.project.hana_piece.goal.projection.UserGoalSummary;
@@ -63,33 +64,45 @@ public class UserGoalService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         UserGoal userGoal;
+        Long goalSpecificId = request.goalSpecificId();
+
+        if (GoalType.WISH.getProperty().equals(request.goalTypeCd())) {
+            Wish wish = Wish.builder()
+                    .wishNm(request.goalAlias())
+                    .wishPrice(request.amount())
+                    .build();
+            wish = wishRepository.save(wish);
+            goalSpecificId = wish.getWishId();
+        }
+
         if (request.userGoalId() != null) {
             UserGoal existingUserGoal = userGoalRepository.findById(request.userGoalId())
                     .orElseThrow(() -> new UserGoalNotFoundException(request.userGoalId()));
-            userGoal = updateUserGoal(existingUserGoal, request);
+            userGoal = updateUserGoal(existingUserGoal, request, goalSpecificId);
         } else {
-            userGoal = createUserGoal(user, request);
+            userGoal = createUserGoal(user, request, goalSpecificId);
         }
         userGoalRepository.save(userGoal);
+
         return UserGoalGetResponse.fromEntity(userGoal);
     }
 
-    private UserGoal createUserGoal(User user, UserGoalUpsertRequest request) {
+    private UserGoal createUserGoal(User user, UserGoalUpsertRequest request, Long goalSpecificId) {
         return UserGoal.builder()
                 .user(user)
                 .goalAlias(request.goalAlias())
                 .goalTypeCd(request.goalTypeCd())
-                .goalSpecificId(request.goalSpecificId())
+                .goalSpecificId(goalSpecificId)
                 .goalBeginDate(request.goalBeginDate())
                 .duration(request.duration())
                 .amount(request.amount())
                 .build();
     }
 
-    private UserGoal updateUserGoal(UserGoal existingUserGoal, UserGoalUpsertRequest request) {
+    private UserGoal updateUserGoal(UserGoal existingUserGoal, UserGoalUpsertRequest request, Long goalSpecificId) {
         existingUserGoal.setGoalAlias(request.goalAlias());
         existingUserGoal.setGoalTypeCd(GoalType.valueOf(request.goalTypeCd()));
-        existingUserGoal.setGoalSpecificId(request.goalSpecificId());
+        existingUserGoal.setGoalSpecificId(goalSpecificId);
         existingUserGoal.setGoalBeginDate(request.goalBeginDate());
         existingUserGoal.setDuration(request.duration());
         existingUserGoal.setAmount(request.amount());

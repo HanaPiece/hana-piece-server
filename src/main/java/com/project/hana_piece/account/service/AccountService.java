@@ -6,7 +6,9 @@ import static com.project.hana_piece.account.util.AccountNumberGenerator.generat
 
 import com.project.hana_piece.account.domain.Account;
 import com.project.hana_piece.account.domain.AccountAutoDebit;
+import com.project.hana_piece.account.domain.AccountPaymentType;
 import com.project.hana_piece.account.domain.AccountTransaction;
+import com.project.hana_piece.account.domain.AccountTransactionType;
 import com.project.hana_piece.account.domain.AccountType;
 import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
 import com.project.hana_piece.account.dto.AccountAutoDebitAdjustUpsertRequest;
@@ -28,6 +30,7 @@ import com.project.hana_piece.account.repository.AccountAutoDebitRepository;
 import com.project.hana_piece.account.repository.AccountRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepositoryCustom;
+import com.project.hana_piece.common.exception.ValueInvalidException;
 import com.project.hana_piece.goal.domain.UserGoal;
 import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
 import com.project.hana_piece.goal.repository.UserGoalRepository;
@@ -35,10 +38,13 @@ import com.project.hana_piece.user.domain.User;
 import com.project.hana_piece.user.exception.UserInvalidException;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +52,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     private final AccountRepository accountRepository;
     private final AccountAutoDebitRepository accountAutoDebitRepository;
@@ -230,5 +238,52 @@ public class AccountService {
         savingAccountAutoDebit.setAutoDebitAmount(request.savingAutoDebitAmount());
         lifeAccountAutoDebit.setAutoDebitAmount(request.lifeAutoDebitAmount());
         spareAccountAutoDebit.setAutoDebitAmount(request.spareAutoDebitAmount());
+    }
+
+    // TODO 현재 로직은 매우 위험함 각각의 처리에 Transaction 기반으로 동작해야함 추후 필수 수정 사항!!
+    @Transactional
+    public void executeTodayAccountAutoDebit() {
+        Integer day = LocalDateTime.now().getDayOfMonth();
+        List<AccountAutoDebit> autoDebitList = accountAutoDebitRepository.findByAutoDebitDay(day);
+
+        autoDebitList.stream().forEach(accountAutoDebit -> {
+            try {
+                Account senderAccount = accountAutoDebit.getAccount();
+                Account recieverAccount = accountRepository.findById(
+                        accountAutoDebit.getTargetAccountId())
+                    .orElseThrow(AccountNotFoundException::new);
+                AccountTransaction senderAccountTransaction = AccountTransaction.builder()
+                    .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
+                    .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
+                    .account(senderAccount)
+                    .targetNm(recieverAccount.getAccountId().toString())
+                    .oldBalance(senderAccount.getBalance())
+                    .newBalance(senderAccount.getBalance() - accountAutoDebit.getAutoDebitAmount())
+                    .amount(-accountAutoDebit.getAutoDebitAmount())
+                    .build();
+                AccountTransaction recieverAccountTransaction = AccountTransaction.builder()
+                    .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
+                    .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
+                    .account(recieverAccount)
+                    .targetNm(senderAccount.getAccountId().toString())
+                    .oldBalance(recieverAccount.getBalance())
+                    .newBalance(
+                        recieverAccount.getBalance() + accountAutoDebit.getAutoDebitAmount())
+                    .amount(+accountAutoDebit.getAutoDebitAmount())
+                    .build();
+
+                // 계좌 잔액 수정
+                senderAccount.minusAmount(accountAutoDebit.getAutoDebitAmount());
+                recieverAccount.plusAmount(accountAutoDebit.getAutoDebitAmount());
+
+                // 계좌 이체 정보 저장
+                accountTransactionRepository.save(senderAccountTransaction);
+                accountTransactionRepository.save(recieverAccountTransaction);
+            }catch (ValueInvalidException vie) {
+                //TODO 잔액 부족 시 무시 후, 반복문 계속 진행, 추후 미지급 금액에 대한 처리 필요
+                logger.info(vie.getMessage());
+
+            }
+        });
     }
 }

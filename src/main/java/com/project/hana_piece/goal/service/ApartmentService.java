@@ -29,18 +29,14 @@ public class ApartmentService {
 
     public ApartmentPricePredictResponse predictApartmentPrice(ApartmentPricePredictRequest request) {
 
-        String[] dateParts = request.date().split("-");
-        String year = dateParts[0];
-        String month = dateParts[1];
 
-        double priceInBillion = request.price() / 10000.0;
-
-        String prompt = String.format("%s년 %s월 가장 최근 거래가가 %.1f억인 %s %s %d평의 가격을 선형 회귀 모델을 이용해 오차범위 50퍼센트 가격 이내에서 중간 시나리오로 최대한 정확히 예측해서 '%.1f억' 형식으로 가격만 알려줘",
-                year, month, priceInBillion, request.region(), request.apartmentNm(), request.area(), priceInBillion);
+        String prompt = String.format("%d개월 뒤 가장 최근 거래가가 %d억인 %s %s %d평의 가격을 선형 회귀 모델을 이용해 오차범위 50퍼센트 가격 이내에서 중간 시나리오로 최대한 정확히 예측해서 %d 형식으로 가격만 알려줘",
+                request.duration(), request.price(), request.region(), request.apartmentNm(), request.area(), request.price());
 
         GeminiPrompt geminiPrompt = GeminiPrompt.builder().requests(prompt).build();
         GeminiCallResponse response = aiService.callGenerativeLanguageApi(geminiPrompt);
 
-        return new ApartmentPricePredictResponse(response.message());
+        long messageLong = Long.parseLong(response.message());
+        return new ApartmentPricePredictResponse(messageLong);
     }
 }

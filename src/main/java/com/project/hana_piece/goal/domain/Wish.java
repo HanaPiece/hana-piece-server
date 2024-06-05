@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,4 +25,10 @@ public class Wish extends BaseEntity {
 
     @Column(name = "wish_price", nullable = false)
     private Long wishPrice;
+
+    @Builder
+    public Wish(String wishNm, Long wishPrice) {
+        this.wishNm = wishNm;
+        this.wishPrice = wishPrice;
+    }
 }

@@ -27,6 +27,7 @@ import com.project.hana_piece.account.projection.UserGoalAccountSummary;
 import com.project.hana_piece.account.repository.AccountAutoDebitRepository;
 import com.project.hana_piece.account.repository.AccountRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepository;
+import com.project.hana_piece.account.repository.AccountTransactionRepositoryCustom;
 import com.project.hana_piece.goal.domain.UserGoal;
 import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
 import com.project.hana_piece.goal.repository.UserGoalRepository;
@@ -50,6 +51,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountAutoDebitRepository accountAutoDebitRepository;
     private final AccountTransactionRepository accountTransactionRepository;
+    private final AccountTransactionRepositoryCustom accountTransactionRepositoryCustom;
     private final UserRepository userRepository;
     private final UserGoalRepository userGoalRepository;
 
@@ -156,7 +158,7 @@ public class AccountService {
     public AccountMonthTransactionGetResponse findAccountMonthTransactionList(Long userId, Long accountId, Integer transactionMonth) {
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new AccountNotFoundException(accountId));
-        List<AccountTransaction> dailyTransactionProjectionList = accountTransactionRepository.findDailyTransactionList(
+        List<AccountTransaction> dailyTransactionProjectionList = accountTransactionRepositoryCustom.findDailyTransactionList(
             accountId, transactionMonth);
         // Projection List -> DTO List
         List<AccountDailyTransactionGetResponse> dailyTransactionList = dailyTransactionProjectionList.stream()

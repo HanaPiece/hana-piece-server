@@ -1,11 +1,13 @@
 INSERT INTO account_payment_type (account_payment_type_cd,deleted_yn) VALUES
 	 ('TRANSFER',0),
 	 ('CARD',0);
+
 INSERT INTO account_transaction_type (account_transaction_type_cd,deleted_yn) VALUES
 	 ('FOOD',0),
 	 ('TRANSPORT',0),
 	 ('SHOPPING',0),
 	 ('TRANSFER',0),
+	 ('LEISURE',0),
 	 ('INTEREST',0);
 
 INSERT INTO interest_type (interest_type_cd,deleted_yn) VALUES

@@ -37,7 +37,6 @@ import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -155,11 +154,13 @@ public class AccountService {
         return accountTransactionList.stream().map(AccountTransactionGetResponse::fromEntity).toList();
     }
 
-    public AccountMonthTransactionGetResponse findAccountMonthTransactionList(Long userId, Long accountId, Integer transactionMonth) {
+    public AccountMonthTransactionGetResponse findAccountMonthTransactionList(Long userId, Long accountId, Integer transactionYearMonth) {
         Account account = accountRepository.findById(accountId)
             .orElseThrow(() -> new AccountNotFoundException(accountId));
         List<AccountTransaction> dailyTransactionProjectionList = accountTransactionRepositoryCustom.findDailyTransactionList(
-            accountId, transactionMonth);
+            accountId, transactionYearMonth);
+        Long autoDebitTotalAmount = accountTransactionRepositoryCustom.findSumAutoDebitAmount(
+            accountId, transactionYearMonth);
         // Projection List -> DTO List
         List<AccountDailyTransactionGetResponse> dailyTransactionList = dailyTransactionProjectionList.stream()
             .map(AccountDailyTransactionGetResponse::fromEntity).toList();
@@ -177,7 +178,7 @@ public class AccountService {
                 )));
 
         // 월 별 통계
-        Long monthlySum = dailyTransactionList.stream()
+        Long monthlyTotalSpending = dailyTransactionList.stream()
             .mapToLong(transaction -> Math.abs(transaction.amount())).sum();
 
         // 월 별 거래 타입 별 통계
@@ -187,7 +188,7 @@ public class AccountService {
                 Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
             )));
 
-        return new AccountMonthTransactionGetResponse(monthlySum, amountByType, amountByDay, dailyTransactionList);
+        return new AccountMonthTransactionGetResponse(autoDebitTotalAmount, monthlyTotalSpending, amountByType, amountByDay, dailyTransactionList);
     }
 
     public AccountSalaryGetResponse findSalaryAccount(Long userId) {

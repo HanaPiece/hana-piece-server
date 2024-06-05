@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -46,4 +47,19 @@ public class AccountTransaction extends BaseEntity {
 
     @Column(name = "description", length = 300)
     private String description;
+
+    @Builder
+    public AccountTransaction(Account account, String accountPaymentTypeCd,
+        String accountTransactionTypeCd, Long amount, Long oldBalance, Long newBalance,
+        String targetNm,
+        String description) {
+        this.account = account;
+        this.accountPaymentTypeCd = accountPaymentTypeCd;
+        this.accountTransactionTypeCd = accountTransactionTypeCd;
+        this.amount = amount;
+        this.oldBalance = oldBalance;
+        this.newBalance = newBalance;
+        this.targetNm = targetNm;
+        this.description = description;
+    }
 }

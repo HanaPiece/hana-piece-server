@@ -91,7 +91,7 @@ public class AccountController {
     }
 
     @PostMapping("/auto-debit/adjust")
-    public ResponseEntity<Void> updateAccountAutoDebitAdjust(AccountAutoDebitAdjustUpsertRequest request) {
+    public ResponseEntity<Void> updateAccountAutoDebitAdjust(@RequestBody AccountAutoDebitAdjustUpsertRequest request) {
         accountService.updateAccountAutoDebitAdjust(request);
         return ResponseEntity.noContent().build();
     }

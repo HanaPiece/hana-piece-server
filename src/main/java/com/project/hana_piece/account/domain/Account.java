@@ -1,6 +1,7 @@
 package com.project.hana_piece.account.domain;
 
 import com.project.hana_piece.common.domain.BaseEntity;
+import com.project.hana_piece.common.exception.ValueInvalidException;
 import com.project.hana_piece.product.domain.EnrolledProduct;
 import com.project.hana_piece.user.domain.User;
 import jakarta.persistence.*;
@@ -40,6 +41,15 @@ public class Account extends BaseEntity {
 
     public void setAccountTypeCd(AccountType accountType){
         this.accountTypeCd = accountType.getProperty();
+    }
+
+    public void plusAmount(Long amount) {
+        this.balance += amount;
+    }
+
+    public void minusAmount(Long amount) {
+        if(this.balance < amount) throw new ValueInvalidException();
+        this.balance -= amount;
     }
 
     @Builder

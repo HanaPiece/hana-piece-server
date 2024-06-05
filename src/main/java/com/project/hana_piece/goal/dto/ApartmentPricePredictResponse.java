@@ -1,4 +1,4 @@
 package com.project.hana_piece.goal.dto;
 
-public record ApartmentPricePredictResponse(String price) {
+public record ApartmentPricePredictResponse(Long price) {
 }

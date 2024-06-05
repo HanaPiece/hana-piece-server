@@ -2,9 +2,9 @@ package com.project.hana_piece.goal.dto;
 
 import com.project.hana_piece.goal.projection.UserGoalSummary;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 public record UserGoalListGetResponse(
         Long userGoalId,
@@ -19,7 +19,10 @@ public record UserGoalListGetResponse(
 ) {
     public static UserGoalListGetResponse fromProjection(UserGoalSummary projection) {
         List<String> productNamesList = projection.getProductNames() != null ?
-                Arrays.asList(projection.getProductNames().split(",")) : Collections.emptyList();
+                Stream.of(projection.getProductNames().split(","))
+                        .map(String::trim)  // 공백 제거
+                        .filter(s -> !s.isEmpty())  // 빈 문자열 제거
+                        .toList() : Collections.emptyList();
 
         return new UserGoalListGetResponse(
                 projection.getUserGoalId(),

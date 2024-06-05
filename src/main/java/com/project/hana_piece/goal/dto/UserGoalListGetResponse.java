@@ -9,6 +9,8 @@ import java.util.List;
 public record UserGoalListGetResponse(
         Long userGoalId,
         String goalAlias,
+        String goalTypeCd,
+        Long goalSpecificId,
         String goalBeginDate,
         Integer duration,
         Long amount,
@@ -22,6 +24,8 @@ public record UserGoalListGetResponse(
         return new UserGoalListGetResponse(
                 projection.getUserGoalId(),
                 projection.getGoalAlias(),
+                projection.getGoalTypeCd(),
+                projection.getGoalSpecificId(),
                 projection.getGoalBeginDate(),
                 projection.getDuration(),
                 projection.getAmount(),

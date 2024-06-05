@@ -37,6 +37,8 @@ public interface UserGoalRepository extends JpaRepository<UserGoal, Long> {
             + "SELECT "
             + "        ug.user_goal_id as userGoalId, "
             + "        ug.goal_alias as goalAlias, "
+            + "        ug.goal_type_cd as goalTypeCd, "
+            + "        ug.goal_specific_id as goalSpecificId, "
             + "        ug.goal_begin_date as goalBeginDate, "
             + "        ug.duration, "
             + "        ug.amount, "
@@ -48,7 +50,7 @@ public interface UserGoalRepository extends JpaRepository<UserGoal, Long> {
             + "    LEFT JOIN accounts a ON ep.enrolled_product_id = a.enrolled_product_id "
             + "    LEFT JOIN account_transactions at ON a.account_id = at.account_id "
             + "    WHERE ug.user_id = :userId "
-            + "    GROUP BY ug.user_goal_id, ug.goal_alias, ug.goal_begin_date, ug.duration, ug.amount", nativeQuery = true)
+            + "    GROUP BY ug.user_goal_id, ug.goal_alias, ug.goal_type_cd, ug.goal_specific_id, ug.goal_begin_date, ug.duration, ug.amount", nativeQuery = true)
     List<UserGoalSummary> findUserGoalList(@Param("userId") Long userId);
 
 }

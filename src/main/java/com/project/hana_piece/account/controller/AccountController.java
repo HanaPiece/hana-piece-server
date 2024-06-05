@@ -67,8 +67,8 @@ public class AccountController {
     }
 
     @GetMapping("/{accountId}/transactions")
-    public ResponseEntity<AccountMonthTransactionGetResponse> findAccountMonthTransactionList(@AuthenticationPrincipal Long userId, @PathVariable Long accountId, @RequestParam("month") Integer month) {
-        AccountMonthTransactionGetResponse response = accountService.findAccountMonthTransactionList(userId, accountId, month);
+    public ResponseEntity<AccountMonthTransactionGetResponse> findAccountMonthTransactionList(@AuthenticationPrincipal Long userId, @PathVariable Long accountId, @RequestParam("transactionYearMonth") Integer transactionYearMonth) {
+        AccountMonthTransactionGetResponse response = accountService.findAccountMonthTransactionList(userId, accountId, transactionYearMonth);
         return ResponseEntity.ok(response);
     }
 

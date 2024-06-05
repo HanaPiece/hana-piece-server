@@ -10,6 +10,7 @@ public interface AccountTransactionRepository extends JpaRepository<AccountTrans
 
     List<AccountTransaction> findByAccountAccountId(Long accountId);
 
+    // TODO QueryDSL 로 처리하도록 전환 됨 삭제 예정
     @Query(value = "SELECT *" +
         "FROM account_transactions act " +
         "WHERE DATE_FORMAT(act.created_at, '%m') = :transactionMonth " +

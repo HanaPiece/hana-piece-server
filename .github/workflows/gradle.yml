@@ -1,67 +1,93 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+name: CI/CD using github actions & docker
 
-name: Java CI with Gradle
-
+# event trigger
+# main 브랜치에 push가 되었을 때 실행
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-
+  CI-CD:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
 
-    # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-    # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+      # JDK setting - github actions에서 사용할 JDK 설정
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build
+      # gradle caching - 빌드 시간 향상
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-    # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
-    # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
-    #
-    # - name: Setup Gradle
-    #   uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-    #   with:
-    #     gradle-version: '8.5'
-    #
-    # - name: Build with Gradle 8.5
-    #   run: gradle build
+      # yml 파일 생성 - application.yml
+      - name: make application.yml
+        run: |
+          mkdir -p ./src/main/resources # resources 폴더 생성
+          cd ./src/main/resources # resources 폴더로 이동
+          touch ./application.yml # application.yml 생성
+          echo "spring:" >> ./application.yml
+          echo "  jpa:" >> ./application.yml
+          echo "    database: mysql" >> ./application.yml
+          echo "    hibernate:" >> ./application.yml
+          echo "      ddl-auto: none" >> ./application.yml
+          echo "    show-sql: true" >> ./application.yml
+          echo "  datasource:" >> ./application.yml
+          echo "    url: ${{ secrets.DB_URL }}" >> ./application.yml
+          echo "    username: ${{ secrets.DB_USERNAME }}" >> ./application.yml
+          echo "    password: ${{ secrets.DB_PASSWORD }}" >> ./application.yml
+          echo "    driver-class-name: com.mysql.cj.jdbc.Driver" >> ./application.yml
+          echo "jwt:" >> ./application.yml
+          echo "  secret: ${{ secrets.JWT_SECRET }}" >> ./application.yml
+          echo "  access-expired-ms: 3600000000" >> ./application.yml
+          echo "  claims:" >> ./application.yml
+          echo "    auth-key: userId" >> ./application.yml
+          echo "ai:" >> ./application.yml
+          echo "  gemini:" >> ./application.yml
+          echo "    base-url: https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro-001:generateContent?key=" >> ./application.yml
+          echo "    api-key: ${{ secrets.AI_API_KEY }}" >> ./application.yml
+          echo "server:" >> ./application.yml
+          echo "  servlet:" >> ./application.yml
+          echo "    encoding:" >> ./application.yml
+          echo "      charset: UTF-8" >> ./application.yml
+          echo "      enabled: true" >> ./application.yml
+          echo "      force: true" >> ./application.yml
+        shell: bash
 
-  dependency-submission:
+      # gradle build
+      - name: Build with Gradle
+        run: ./gradlew build -x test
 
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+      # docker build & push
+      - name: Docker build & push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USERNAME }}/hana_piece .
+          docker push ${{ secrets.DOCKER_USERNAME }}/hana_piece
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
-    # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
-    - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+      # deploy
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        id: deploy
+        with:
+          host: ${{ secrets.HOST }} # EC2 퍼블릭 IPv4 DNS
+          username: ubuntu
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            sudo docker ps
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/hana_piece
+            sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/hana_piece
+            sudo docker image prune -f

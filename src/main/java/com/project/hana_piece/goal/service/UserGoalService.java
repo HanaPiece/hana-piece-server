@@ -10,6 +10,9 @@ import com.project.hana_piece.goal.repository.ApartmentRepository;
 import com.project.hana_piece.goal.repository.CarRepository;
 import com.project.hana_piece.goal.repository.UserGoalRepository;
 import com.project.hana_piece.goal.repository.WishRepository;
+import com.project.hana_piece.product.domain.Product;
+import com.project.hana_piece.product.exception.ProductNotFoundException;
+import com.project.hana_piece.product.repository.ProductRepository;
 import com.project.hana_piece.user.domain.User;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
@@ -18,12 +21,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class UserGoalService {
 
+
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final UserGoalRepository userGoalRepository;
     private final ApartmentRepository apartmentRepository;
     private final CarRepository carRepository;
@@ -112,6 +118,20 @@ public class UserGoalService {
     @Transactional(readOnly = true)
     public List<UserGoalListGetResponse> findUserGoalList(Long userId) {
         List<UserGoalSummary> userGoalSummaryList = userGoalRepository.findUserGoalList(userId);
-        return userGoalSummaryList.stream().map(UserGoalListGetResponse::fromProjection).toList();
+
+        return userGoalSummaryList.stream().map(summary -> {
+            List<UserGoalListGetResponse.EnrolledProductResponse> enrolledProducts = Stream.of(summary.getProductIds().split(","))
+                    .map(String::trim) // 공백 제거
+                    .filter(s -> !s.isEmpty()) // 빈 문자열 제거
+                    .map(Long::parseLong) // 문자열을 Long으로 변환
+                    .map(id -> new UserGoalListGetResponse.EnrolledProductResponse(id, getProductNameById(id)))
+                    .toList();
+            return UserGoalListGetResponse.fromProjection(summary, enrolledProducts);
+        }).toList();
+    }
+
+    private String getProductNameById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        return product.getProductNm();
     }
 }

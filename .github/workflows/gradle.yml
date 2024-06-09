@@ -91,10 +91,11 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/hana_piece
+            # 기존 컨테이너를 확인하여 중지 및 삭제
             existing_container=$(docker ps -q --filter "name=hana_piece")
             if [ ! -z "$existing_container" ]; then
               docker stop $existing_container
               docker rm $existing_container
             fi
-            sudo docker run -d -p 8080:8080 --name hana_piece ${{ secrets.DOCKER_USERNAME }}/hana_piece
+            sudo docker run -d -p 8080:8080 --name hana_piece -e DATABASE_URL=${{ secrets.DATABASE_URL }} ${{ secrets.DOCKER_USERNAME }}/hana_piece
             sudo docker image prune -f

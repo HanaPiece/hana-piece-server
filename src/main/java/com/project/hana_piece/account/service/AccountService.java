@@ -105,14 +105,7 @@ public class AccountService {
     }
 
     private void upsertAutoDebit(Account fromAccount, Account toAccount, Long debitAmount, int debitDay) {
-        Optional<AccountAutoDebit> existingAutoDebitOpt = accountAutoDebitRepository.findByAccount_AccountIdAndTargetAccountId(fromAccount.getAccountId(), toAccount.getAccountId());
-
-        if (existingAutoDebitOpt.isPresent()) {
-            AccountAutoDebit existingAutoDebit = existingAutoDebitOpt.get();
-            existingAutoDebit.setAutoDebitAmount(debitAmount);
-            existingAutoDebit.setAutoDebitDay(debitDay);
-            accountAutoDebitRepository.save(existingAutoDebit);
-        } else {
+        if (!accountAutoDebitRepository.existsByAccountAccountIdAndTargetAccountId(fromAccount.getAccountId(), toAccount.getAccountId())) {
             AccountAutoDebit accountAutoDebit = AccountAutoDebit.builder()
                     .account(fromAccount)
                     .targetAccountId(toAccount.getAccountId())
@@ -120,6 +113,12 @@ public class AccountService {
                     .autoDebitDay(debitDay)
                     .build();
             accountAutoDebitRepository.save(accountAutoDebit);
+        } else {
+            AccountAutoDebit existingAutoDebit = accountAutoDebitRepository.findByAccountAccountIdAndTargetAccountId(fromAccount.getAccountId(), toAccount.getAccountId())
+                    .orElseThrow(() -> new AccountAutoDebitNotFoundException(fromAccount.getAccountId()));
+            existingAutoDebit.setAutoDebitAmount(debitAmount);
+            existingAutoDebit.setAutoDebitDay(debitDay);
+            accountAutoDebitRepository.save(existingAutoDebit);
         }
     }
 
@@ -172,7 +171,7 @@ public class AccountService {
 
     public AccountMonthTransactionGetResponse findAccountMonthTransactionList(Long userId, Long accountId, Integer transactionYearMonth) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
+                .   orElseThrow(() -> new AccountNotFoundException(accountId));
         List<AccountTransaction> dailyTransactionProjectionList = accountTransactionRepositoryCustom.findDailyTransactionList(
                 accountId, transactionYearMonth);
         Long autoDebitTotalAmount = accountTransactionRepositoryCustom.findSumAutoDebitAmount(

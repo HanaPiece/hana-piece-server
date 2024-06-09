@@ -8,11 +8,11 @@ import java.util.Optional;
 
 public interface AccountAutoDebitRepository extends JpaRepository<AccountAutoDebit, Long> {
 
-    boolean existsByAccount_AccountIdAndTargetAccountId(Long accountId, Long targetAccountId);
+    boolean existsByAccountAccountIdAndTargetAccountId(Long accountId, Long accountId1);
 
     List<AccountAutoDebit> findByAutoDebitDay(Integer day);
 
     Optional<AccountAutoDebit> findByTargetAccountId(Long targetAccountId);
 
-    Optional<AccountAutoDebit> findByAccount_AccountIdAndTargetAccountId(Long accountId, Long targetAccountId);
+    Optional<AccountAutoDebit> findByAccountAccountIdAndTargetAccountId(Long accountId, Long targetAccountId);
 }

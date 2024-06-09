@@ -1,26 +1,8 @@
 package com.project.hana_piece.account.service;
 
-import static com.project.hana_piece.account.domain.AccountType.*;
-import static com.project.hana_piece.account.domain.AccountType.isParkingAccountType;
-import static com.project.hana_piece.account.util.AccountNumberGenerator.generateAccountNumber;
-
-import com.project.hana_piece.account.domain.Account;
-import com.project.hana_piece.account.domain.AccountAutoDebit;
-import com.project.hana_piece.account.domain.AccountPaymentType;
-import com.project.hana_piece.account.domain.AccountTransaction;
-import com.project.hana_piece.account.domain.AccountTransactionType;
-import com.project.hana_piece.account.domain.AccountType;
-import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
-import com.project.hana_piece.account.dto.AccountAutoDebitAdjustUpsertRequest;
-import com.project.hana_piece.account.dto.AccountDailyTransactionGetResponse;
-import com.project.hana_piece.account.dto.AccountGetResponse;
-import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
-import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
-import com.project.hana_piece.account.dto.AccountSavingGetResponse;
-import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
-import com.project.hana_piece.account.dto.AccountTypeRegRequest;
-import com.project.hana_piece.account.dto.AccountUpsertResponse;
-import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
+import com.google.gson.JsonObject;
+import com.project.hana_piece.account.domain.*;
+import com.project.hana_piece.account.dto.*;
 import com.project.hana_piece.account.exception.AccountAutoDebitNotFoundException;
 import com.project.hana_piece.account.exception.AccountInvalidException;
 import com.project.hana_piece.account.exception.AccountNotFoundException;
@@ -31,6 +13,7 @@ import com.project.hana_piece.account.repository.AccountRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepository;
 import com.project.hana_piece.account.repository.AccountTransactionRepositoryCustom;
 import com.project.hana_piece.common.exception.ValueInvalidException;
+import com.project.hana_piece.common.util.JsonUtil;
 import com.project.hana_piece.goal.domain.UserGoal;
 import com.project.hana_piece.goal.exception.UserGoalNotFoundException;
 import com.project.hana_piece.goal.repository.UserGoalRepository;
@@ -38,16 +21,21 @@ import com.project.hana_piece.user.domain.User;
 import com.project.hana_piece.user.exception.UserInvalidException;
 import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.project.hana_piece.account.domain.AccountType.*;
+import static com.project.hana_piece.account.util.AccountNumberGenerator.generateAccountNumber;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +49,8 @@ public class AccountService {
     private final AccountTransactionRepositoryCustom accountTransactionRepositoryCustom;
     private final UserRepository userRepository;
     private final UserGoalRepository userGoalRepository;
+
+    private final JsonUtil jsonUtil;
 
     public AccountUpsertResponse saveAccount(Long userId) {
         User user = userRepository.findById(userId)
@@ -225,6 +215,35 @@ public class AccountService {
     public List<AccountAutoDebitAdjustGetResponse> findAccountAutoDebitAdjust(Long userId) {
         List<AccountAutoDebitSummary> autoDebitAccountList = accountRepository.findAutoDebitAccount(userId);
         return autoDebitAccountList.stream().map(AccountAutoDebitAdjustGetResponse::fromProjection).toList();
+    }
+
+    public AccountAutoDebitSuggestGetResponse findAccountAutoDebitSuggest(Long userId, String type){
+        WebClient webClient = WebClient.builder()
+                .baseUrl("http://54.180.220.88:5000")
+                .build();
+
+        String endpoint = "";
+        if(type.equals("init")){
+            endpoint = "/first_calc/"+userId;
+        } else if(type.equals("lux")){
+            endpoint = "/second_calc/"+userId+"/lux";
+        } else if(type.equals("save")){
+            endpoint = "/second_calc/"+userId+"/save";
+        }
+
+        String responseBody = webClient.get()
+                .uri(endpoint)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        JsonObject jsonObject = jsonUtil.toJson(responseBody);
+        JsonObject resultData = jsonUtil.extractProperty(jsonObject, "result_data", JsonObject.class);
+        int life = jsonUtil.extractProperty(resultData, "life", Integer.class);
+        int reserve = jsonUtil.extractProperty(resultData, "reserve", Integer.class);
+        int saving = jsonUtil.extractProperty(resultData, "saving", Integer.class);
+
+        return new AccountAutoDebitSuggestGetResponse(life, reserve, saving);
     }
 
     public void updateAccountAutoDebitAdjust(AccountAutoDebitAdjustUpsertRequest request) {

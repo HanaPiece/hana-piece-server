@@ -4,6 +4,7 @@ import com.project.hana_piece.product.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +25,8 @@ public class ProductController {
     }
 
     @GetMapping("/recommend/{userGoalId}")
-    public ResponseEntity<RecommendationResponse> recommendProducts(@PathVariable Long userGoalId) {
-        RecommendationResponse response = productService.recommendProducts(userGoalId);
+    public ResponseEntity<RecommendationResponse> recommendProducts(@AuthenticationPrincipal Long userId, @PathVariable Long userGoalId) {
+        RecommendationResponse response = productService.recommendProducts(userId, userGoalId);
         return ResponseEntity.ok(response);
     }
 

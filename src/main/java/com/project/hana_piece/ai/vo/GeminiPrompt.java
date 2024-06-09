@@ -26,9 +26,9 @@ public class GeminiPrompt {
     @Builder
     public GeminiPrompt(String requests, String constraints, String responseFormat,
         String exampleData) {
-        this.requests = "Requests: " + requests + "\n";
-        this.constraints = "Constraints: " + constraints + "\n";
-        this.responseFormat = "ResponseFormat: " + responseFormat + "\n";
-        this.exampleData = "ExampleData: "+ exampleData + "\n";
+        this.requests = "[Requests] " + requests + "\n";
+        this.constraints = "[Constraints] " + constraints + "\n";
+        this.responseFormat = "[ResponseFormat] " + responseFormat + "\n";
+        this.exampleData = "[ExampleData] "+ exampleData + "\n";
     }
 }

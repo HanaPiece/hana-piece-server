@@ -1,15 +1,6 @@
 package com.project.hana_piece.account.controller;
 
-import com.project.hana_piece.account.dto.AccountAutoDebitAdjustGetResponse;
-import com.project.hana_piece.account.dto.AccountAutoDebitAdjustUpsertRequest;
-import com.project.hana_piece.account.dto.AccountGetResponse;
-import com.project.hana_piece.account.dto.AccountMonthTransactionGetResponse;
-import com.project.hana_piece.account.dto.AccountSalaryGetResponse;
-import com.project.hana_piece.account.dto.AccountSavingGetResponse;
-import com.project.hana_piece.account.dto.AccountTransactionGetResponse;
-import com.project.hana_piece.account.dto.AccountTypeRegRequest;
-import com.project.hana_piece.account.dto.AccountUpsertResponse;
-import com.project.hana_piece.account.dto.UserGoalAccountGetResponse;
+import com.project.hana_piece.account.dto.*;
 import com.project.hana_piece.account.service.AccountService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +78,12 @@ public class AccountController {
     @GetMapping("/auto-debit/adjust")
     public ResponseEntity<List<AccountAutoDebitAdjustGetResponse>> findAccountAutoDebitAdjust(@AuthenticationPrincipal Long userId) {
         List<AccountAutoDebitAdjustGetResponse> response = accountService.findAccountAutoDebitAdjust(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/auto-debit/suggestions/{type}")
+    public ResponseEntity<AccountAutoDebitSuggestGetResponse> findAccountAutoDebitSuggest(@AuthenticationPrincipal Long userId, @PathVariable String type){
+        AccountAutoDebitSuggestGetResponse response = accountService.findAccountAutoDebitSuggest(userId, type);
         return ResponseEntity.ok(response);
     }
 

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface EnrolledProductRepository extends JpaRepository<EnrolledProduct, Long> {
-    List<EnrolledProduct> findByUserGoalUserUserId(Long userId);
+    List<EnrolledProduct> findByUserGoalUserGoalId(Long userId);
 
     boolean existsByProductAndUserGoal(Product product, UserGoal userGoal);
 }

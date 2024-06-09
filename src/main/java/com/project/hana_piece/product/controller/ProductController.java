@@ -25,8 +25,8 @@ public class ProductController {
     }
 
     @GetMapping("/recommend/{userGoalId}")
-    public ResponseEntity<RecommendationResponse> recommendProducts(@AuthenticationPrincipal Long userId, @PathVariable Long userGoalId) {
-        RecommendationResponse response = productService.recommendProducts(userId, userGoalId);
+    public ResponseEntity<RecommendationResponse> recommendProducts(@PathVariable Long userGoalId) {
+        RecommendationResponse response = productService.recommendProducts(userGoalId);
         return ResponseEntity.ok(response);
     }
 

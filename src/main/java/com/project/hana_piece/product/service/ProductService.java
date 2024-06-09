@@ -26,10 +26,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +47,7 @@ public class ProductService {
                 .toList();
     }
 
+
     public RecommendationResponse recommendProducts(Long userGoalId) {
         Optional<UserGoal> userGoalOptional = userGoalRepository.findById(userGoalId);
         if (userGoalOptional.isEmpty()) {
@@ -64,15 +63,20 @@ public class ProductService {
                 .map(enrolledProduct -> enrolledProduct.getProduct().getProductId())
                 .toList();
 
-      // 추천 상품 목록 생성
-        String promptMessage = buildPromptMessage(userGoal, products, enrolledProductIds);
-        GeminiPrompt geminiPrompt = GeminiPrompt.builder().requests(promptMessage).build();
+        // 추천 상품 목록 생성
+        GeminiPrompt geminiPrompt = buildPromptMessage(userGoal, products, enrolledProductIds);
         GeminiCallResponse aiResponse = aiService.callGenerativeLanguageApi(geminiPrompt);
         String aiResponseMessage = aiResponse.message();
         String[] productIdStringList = aiResponseMessage.split(",");
         List<Long> productIdList = Arrays.stream(productIdStringList)
                 .map(string -> Long.valueOf(string.trim()))
                 .filter(productId -> !enrolledProductIds.contains(productId))
+                .filter(productId -> {
+                    if (!"HOUSE".equals(userGoal.getGoalTypeCd()) && productId == 14) {
+                        return false;
+                    }
+                    return true;
+                })
                 .toList();
 
         List<ProductGetResponse> recommendedProducts = new ArrayList<>();
@@ -91,26 +95,44 @@ public class ProductService {
         return new RecommendationResponse(recommendedProducts, enrolledProductResponses);
     }
 
-    private String buildPromptMessage(UserGoal userGoal, List<Product> products, List<Long> enrolledProductIds) {
-        StringBuilder promptMessage = new StringBuilder();
-        promptMessage.append("아래의 상품 리스트 중 ")
-                .append(userGoal.getGoalTypeCd())
-                .append("을 위한 하나은행 적금을 최소 7개 추천해줘. ")
-                .append("목표 금액은 ").append(userGoal.getAmount()).append("원이고, 시작 날짜는 ").append(userGoal.getGoalBeginDate())
-                .append("이며, 목표를 달성하기 위한 기간은 ").append(userGoal.getDuration()).append("년이다. ")
-                .append("답변으로는 추천 상품의 product_id만 콤마를 기준으로 공백없이 나열해서 응답해주면 돼. ")
-                .append("이 내용의 텍스트만 전달해줘. ")
-                .append("아래는 상품 리스트야: ");
+    private GeminiPrompt buildPromptMessage(UserGoal userGoal, List<Product> products, List<Long> enrolledProductIds) {
+        String requests = "아래의 상품 리스트 중 " + userGoal.getGoalAlias() + "을 위한 하나은행 적금을 최소 7개 추천해줘. "
+                + "목표 금액은 " + userGoal.getAmount() + "원이고, 시작 날짜는 " + userGoal.getGoalBeginDate()
+                + "이며, 목표를 달성하기 위한 기간은 " + userGoal.getDuration() + "개월이다. ";
 
+        StringBuilder constraintsBuilder = new StringBuilder();
+        constraintsBuilder.append("답변으로는 추천 상품의 product_id만 콤마를 기준으로 공백없이 나열해서 응답해줘. ")
+                .append("상품 ID는 이미 등록된 적금 상품 ID를 제외하고 추천해야 해. ");
+
+        if ("HOUSE".equals(userGoal.getGoalTypeCd())) {
+            constraintsBuilder.append("goal_type_cd가 HOUSE인 경우 청년 주택드림 청약통장(ProductId: 14)을 포함해야 해. ");
+        } else {
+            constraintsBuilder.append("goal_type_cd가 HOUSE가 아닌 경우 청년 주택드림 청약통장(ProductId: 14)을 추천하지 말아야 해. ");
+        }
+
+        if ("CAR".equals(userGoal.getGoalTypeCd())) {
+            constraintsBuilder.append("goal_type_cd가 CAR인 경우, 높은 금리와 유연한 적립 조건을 갖춘 상품을 고려해줘. ");
+        }
+
+        StringBuilder exampleDataBuilder = new StringBuilder("아래는 상품 리스트야: ");
         products.stream()
                 .filter(product -> !enrolledProductIds.contains(product.getProductId()))
-                .forEach(product -> promptMessage.append("ProductId: ").append(product.getProductId())
+                .forEach(product -> exampleDataBuilder.append("ProductId: ").append(product.getProductId())
                         .append(", ProductName: ").append(product.getProductNm())
                         .append(", ProductTermYear: ").append(product.getTermYear())
-                        .append(", ProductInterestRate: ").append(product.getInterestRate()).append("; "));
+                        .append(", ProductInterestRate: ").append(product.getInterestRate())
+                        .append("; "));
 
-        return promptMessage.toString();
+        String responseFormat = "추천 상품의 product_id만 콤마를 기준으로 공백없이 나열해서 응답해줘.";
+
+        return GeminiPrompt.builder()
+                .requests(requests)
+                .constraints(constraintsBuilder.toString())
+                .responseFormat(responseFormat)
+                .exampleData(exampleDataBuilder.toString())
+                .build();
     }
+
 
     public ProductDetailResponse getProductDetail(Long productId) {
         Optional<Product> productOptional = productRepository.findById(productId);

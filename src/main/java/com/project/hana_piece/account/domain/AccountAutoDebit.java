@@ -36,9 +36,13 @@ public class AccountAutoDebit extends BaseEntity {
     @Column(name = "auto_debit_day")
     private Integer autoDebitDay;
 
+    public void setAccount(Account account) {
+        this.account = account;
+    }
     public void setAutoDebitAmount(Long amount) {
         this.autoDebitAmount = amount;
     }
+    public void setAutoDebitDay(Integer day) { this.autoDebitDay = day;}
 
     @Builder
     public AccountAutoDebit(Account account, Long targetAccountId, Long autoDebitAmount,

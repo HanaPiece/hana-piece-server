@@ -90,7 +90,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
-            sudo docker ps
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/hana_piece
-            sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/hana_piece
+            existing_container=$(docker ps -q --filter "name=hana_piece")
+            if [ ! -z "$existing_container" ]; then
+              docker stop $existing_container
+              docker rm $existing_container
+            fi
+            sudo docker run -d -p 8080:8080 --name hana_piece ${{ secrets.DOCKER_USERNAME }}/hana_piece
             sudo docker image prune -f

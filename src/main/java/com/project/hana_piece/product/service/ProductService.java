@@ -61,7 +61,6 @@ public class ProductService {
         GeminiPrompt geminiPrompt = buildPromptMessage(userGoal, products, enrolledProducts);
         GeminiCallResponse aiResponse = aiService.callGenerativeLanguageApi(geminiPrompt);
         String aiResponseMessage = aiResponse.message();
-        System.out.println(geminiPrompt.getTotalPrompt());
         List<Long> productIdList = Arrays.stream(aiResponseMessage.split(","))
                 .map(string -> Long.valueOf(string.trim()))
                 .toList();

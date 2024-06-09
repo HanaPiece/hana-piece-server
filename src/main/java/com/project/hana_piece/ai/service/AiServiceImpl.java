@@ -3,6 +3,7 @@ package com.project.hana_piece.ai.service;
 import static com.project.hana_piece.ai.vo.GeminiResponseField.TEXT;
 
 import com.google.gson.JsonObject;
+import com.project.hana_piece.account.service.AccountService;
 import com.project.hana_piece.ai.dto.GeminiCallRequest;
 import com.project.hana_piece.ai.dto.GeminiCallResponse;
 import com.project.hana_piece.ai.exception.GeminiNetworkIOException;
@@ -11,6 +12,8 @@ import com.project.hana_piece.common.exception.JsonElementNotFoundException;
 import com.project.hana_piece.common.exception.ValueInvalidException;
 import com.project.hana_piece.common.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class AiServiceImpl implements AiService{
 
+    private static final Logger logger = LoggerFactory.getLogger(AiServiceImpl.class);
     private final JsonUtil jsonUtil;
 
     @Value("${ai.gemini.base-url}")
@@ -51,6 +55,7 @@ public class AiServiceImpl implements AiService{
         try {
             GeminiCallRequest geminiCallRequest = GeminiCallRequest.fromPrompt(geminiPrompt);
             String requestBody = jsonUtil.toJsonString(geminiCallRequest);
+            logger.info("[Gemini AI Prompt] - " + geminiPrompt.getTotalPrompt());
 
             String geminiApiResponseString = webClient.post()
                 .contentType(MediaType.APPLICATION_JSON)

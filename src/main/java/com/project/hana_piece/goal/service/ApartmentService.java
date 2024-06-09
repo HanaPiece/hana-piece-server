@@ -35,7 +35,7 @@ public class ApartmentService {
 
         GeminiCallResponse response = aiService.callGenerativeLanguageApi(geminiPrompt);
 
-        long messageLong = Long.parseLong(response.message());
+        long messageLong = Long.parseLong(response.message().trim());
         return new ApartmentPricePredictResponse(messageLong);
     }
 
@@ -53,7 +53,7 @@ public class ApartmentService {
             .append("짧은 기간에는 비용에 큰 차이가 없도록 해줘\n")
             .append("대한민국의 경제 상황과 국내 정세와 부동산 상황을 파악해서 합리적인 가격을 예측해줘\n");
 
-        String responseFormat = "한국 화폐 단위인 원 단위로 콤마(,) 없이 가격(숫자)만 알려줘";
+        String responseFormat = "한국 화폐 단위인 원 단위로 가격(숫자)만 공백없이 응답해줘";
 
         return GeminiPrompt.builder()
             .requests(requests.toString())

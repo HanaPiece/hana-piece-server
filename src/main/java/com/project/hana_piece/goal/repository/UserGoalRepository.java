@@ -24,6 +24,7 @@ public interface UserGoalRepository extends JpaRepository<UserGoal, Long> {
             + "        ug.duration, "
             + "        ug.amount, "
             + "        GROUP_CONCAT(DISTINCT p.product_nm) as productNames, "
+            + "        GROUP_CONCAT(DISTINCT ep.enrolled_product_id) as productIds, "
             + "        COALESCE(SUM(CASE WHEN at.account_transaction_type_cd != 'INTEREST' THEN at.amount ELSE 0 END), 0) as savingMoney "
             + "    FROM user_goals ug "
             + "    LEFT JOIN enrolled_products ep ON ug.user_goal_id = ep.user_goal_id "

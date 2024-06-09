@@ -8,6 +8,7 @@ public interface UserGoalSummary {
     Long getGoalSpecificId();
     Integer getDuration();
     Long getAmount();
-    String getProductNames();  // List<String> 형태로 변환될 문자열
+    String getProductIds();
+    String getProductNames();
     Long getSavingMoney();
 }

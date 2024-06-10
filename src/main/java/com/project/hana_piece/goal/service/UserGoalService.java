@@ -18,6 +18,7 @@ import com.project.hana_piece.user.exception.UserNotFoundException;
 import com.project.hana_piece.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -57,14 +58,13 @@ public class UserGoalService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public UserGoalDetailGetResponse findUserGoalByIdAndUserId(Long goalUserId, Long userId) {
         UserGoal userGoal = userGoalRepository.findByUserGoalIdAndUserUserId(goalUserId, userId)
                 .orElseThrow(() -> new UserGoalNotFoundException(goalUserId));
         return UserGoalDetailGetResponse.fromEntity(userGoal, apartmentRepository, carRepository, wishRepository);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public UserGoalGetResponse upsertUserGoal(UserGoalUpsertRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -115,17 +115,19 @@ public class UserGoalService {
         return existingUserGoal;
     }
 
-    @Transactional(readOnly = true)
     public List<UserGoalListGetResponse> findUserGoalList(Long userId) {
         List<UserGoalSummary> userGoalSummaryList = userGoalRepository.findUserGoalList(userId);
 
         return userGoalSummaryList.stream().map(summary -> {
-            List<UserGoalListGetResponse.EnrolledProductResponse> enrolledProducts = Stream.of(summary.getProductIds().split(","))
-                    .map(String::trim) // 공백 제거
-                    .filter(s -> !s.isEmpty()) // 빈 문자열 제거
-                    .map(Long::parseLong) // 문자열을 Long으로 변환
-                    .map(id -> new UserGoalListGetResponse.EnrolledProductResponse(id, getProductNameById(id)))
-                    .toList();
+            List<UserGoalListGetResponse.EnrolledProductResponse> enrolledProducts =
+                    summary.getProductIds() == null ?
+                            List.of() :
+                            Stream.of(summary.getProductIds().split(","))
+                                    .map(String::trim)
+                                    .filter(s -> !s.isEmpty())
+                                    .map(Long::parseLong)
+                                    .map(id -> new UserGoalListGetResponse.EnrolledProductResponse(id, getProductNameById(id)))
+                                    .toList();
             return UserGoalListGetResponse.fromProjection(summary, enrolledProducts);
         }).toList();
     }

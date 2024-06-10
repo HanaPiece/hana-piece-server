@@ -2,9 +2,7 @@ package com.project.hana_piece.goal.dto;
 
 import com.project.hana_piece.goal.projection.UserGoalSummary;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 public record UserGoalListGetResponse(
         Long userGoalId,
@@ -14,16 +12,10 @@ public record UserGoalListGetResponse(
         String goalBeginDate,
         Integer duration,
         Long amount,
-        List<String> productNames,
+        List<EnrolledProductResponse> enrolledProducts,
         Long savingMoney
 ) {
-    public static UserGoalListGetResponse fromProjection(UserGoalSummary projection) {
-        List<String> productNamesList = projection.getProductNames() != null ?
-                Stream.of(projection.getProductNames().split(","))
-                        .map(String::trim)  // 공백 제거
-                        .filter(s -> !s.isEmpty())  // 빈 문자열 제거
-                        .toList() : Collections.emptyList();
-
+    public static UserGoalListGetResponse fromProjection(UserGoalSummary projection, List<EnrolledProductResponse> enrolledProducts) {
         return new UserGoalListGetResponse(
                 projection.getUserGoalId(),
                 projection.getGoalAlias(),
@@ -32,9 +24,14 @@ public record UserGoalListGetResponse(
                 projection.getGoalBeginDate(),
                 projection.getDuration(),
                 projection.getAmount(),
-                productNamesList,
+                enrolledProducts,
                 projection.getSavingMoney()
         );
     }
-}
 
+    public static record EnrolledProductResponse(
+            Long enrolledProductId,
+            String enrolledProductName
+    ) {
+    }
+}

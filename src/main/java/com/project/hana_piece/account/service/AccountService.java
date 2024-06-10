@@ -30,8 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.project.hana_piece.account.domain.AccountType.*;
@@ -52,12 +51,13 @@ public class AccountService {
 
     private final JsonUtil jsonUtil;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public AccountUpsertResponse saveAccount(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Account savedAccount = accountRepository.save(
-            Account.builder().user(user).accountNumber(generateAccountNumber()).accountType(CHECKING).balance(0L).build());
+                Account.builder().user(user).accountNumber(generateAccountNumber()).accountType(CHECKING).balance(0L).build());
 
         return AccountUpsertResponse.fromEntity(savedAccount);
     }
@@ -65,27 +65,39 @@ public class AccountService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void registerAccountType(Long userId, AccountTypeRegRequest request) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         // 등록할 계좌
-        Account salaryAccount = accountRepository.findById(request.salaryAccountId()).orElseThrow(()->new AccountNotFoundException(request.salaryAccountId()));
-        Account savingAccount = accountRepository.findById(request.savingAccountId()).orElseThrow(()->new AccountNotFoundException(request.savingAccountId()));
-        Account lifeAccount = accountRepository.findById(request.lifeAccountId()).orElseThrow(()->new AccountNotFoundException(request.lifeAccountId()));
-        Account spareAccount = accountRepository.findById(request.spareAccountId()).orElseThrow(()->new AccountNotFoundException(request.spareAccountId()));
+        Account salaryAccount = accountRepository.findById(request.salaryAccountId()).orElseThrow(() -> new AccountNotFoundException(request.salaryAccountId()));
+        Account savingAccount = accountRepository.findById(request.savingAccountId()).orElseThrow(() -> new AccountNotFoundException(request.savingAccountId()));
+        Account lifeAccount = accountRepository.findById(request.lifeAccountId()).orElseThrow(() -> new AccountNotFoundException(request.lifeAccountId()));
+        Account spareAccount = accountRepository.findById(request.spareAccountId()).orElseThrow(() -> new AccountNotFoundException(request.spareAccountId()));
 
         // 사용자의 기존 등록된 계좌
         List<Account> beforeAccountList = accountRepository.findCheckingAccount(userId);
 
+        // 각 account_type_cd에 해당하는 account_id와 자동이체 정보를 매핑
+        Map<String, Long> autoDebitMap = new HashMap<>();
+        Set<String> autoDebitAccountTypes = new HashSet<>(Arrays.asList("LIFE", "SAVING", "SPARE"));
+
+        for (Account account : beforeAccountList) {
+            if (autoDebitAccountTypes.contains(account.getAccountTypeCd())) {
+                AccountAutoDebit accountAutoDebit = accountAutoDebitRepository.findByTargetAccountId(account.getAccountId())
+                        .orElseThrow(() -> new AccountAutoDebitNotFoundException());
+                autoDebitMap.put(account.getAccountTypeCd(), accountAutoDebit.getAutoDebitAmount());
+            }
+        }
+
         // 기존 등록된 계좌들 계좌 타입 초기화
         beforeAccountList.forEach(account -> {
-            if(!isParkingAccountType(account.getAccountTypeCd()) || !isInstallmentSavingAccountType(account.getAccountTypeCd())) {
+            if (!isParkingAccountType(account.getAccountTypeCd()) || !isInstallmentSavingAccountType(account.getAccountTypeCd())) {
                 account.setAccountTypeCd(CHECKING);
             }
         });
 
-        // Default 자동이체 생성
-        createAutoDebitIfNotExists(salaryAccount, savingAccount, user.getSalaryDay());
-        createAutoDebitIfNotExists(salaryAccount, lifeAccount, user.getSalaryDay());
-        createAutoDebitIfNotExists(salaryAccount, spareAccount, user.getSalaryDay());
+        // 자동이체 정보 수정 또는 생성
+        upsertAutoDebit(salaryAccount, lifeAccount, autoDebitMap.get("LIFE"), user.getSalaryDay());
+        upsertAutoDebit(salaryAccount, savingAccount, autoDebitMap.get("SAVING"), user.getSalaryDay());
+        upsertAutoDebit(salaryAccount, spareAccount, autoDebitMap.get("SPARE"), user.getSalaryDay());
 
         registerSpecificAccountType(userId, salaryAccount, SALARY);
         registerSpecificAccountType(userId, savingAccount, SAVING);
@@ -93,15 +105,21 @@ public class AccountService {
         registerSpecificAccountType(userId, spareAccount, SPARE);
     }
 
-    private void createAutoDebitIfNotExists(Account fromAccount, Account toAccount, int debitDay) {
+    private void upsertAutoDebit(Account fromAccount, Account toAccount, Long debitAmount, int debitDay) {
         if (!accountAutoDebitRepository.existsByAccountAccountIdAndTargetAccountId(fromAccount.getAccountId(), toAccount.getAccountId())) {
             AccountAutoDebit accountAutoDebit = AccountAutoDebit.builder()
-                .account(fromAccount)
-                .targetAccountId(toAccount.getAccountId())
-                .autoDebitAmount(0L)
-                .autoDebitDay(debitDay)
-                .build();
+                    .account(fromAccount)
+                    .targetAccountId(toAccount.getAccountId())
+                    .autoDebitAmount(debitAmount != null ? debitAmount : 0L)
+                    .autoDebitDay(debitDay)
+                    .build();
             accountAutoDebitRepository.save(accountAutoDebit);
+        } else {
+            AccountAutoDebit existingAutoDebit = accountAutoDebitRepository.findByAccountAccountIdAndTargetAccountId(fromAccount.getAccountId(), toAccount.getAccountId())
+                    .orElseThrow(() -> new AccountAutoDebitNotFoundException(fromAccount.getAccountId()));
+            existingAutoDebit.setAutoDebitAmount(debitAmount);
+            existingAutoDebit.setAutoDebitDay(debitDay);
+            accountAutoDebitRepository.save(existingAutoDebit);
         }
     }
 
@@ -124,7 +142,7 @@ public class AccountService {
 
     public List<UserGoalAccountGetResponse> findUserGoalAccountList(Long userId, Long userGoalId) {
         UserGoal userGoal = userGoalRepository.findById(userGoalId)
-            .orElseThrow(() -> new UserGoalNotFoundException(userGoalId));
+                .orElseThrow(() -> new UserGoalNotFoundException(userGoalId));
 
         if(userGoal.getUser() == null || !userGoal.getUser().getUserId().equals(userId) ){
             throw new UserInvalidException(userId);
@@ -136,8 +154,8 @@ public class AccountService {
 
     public List<AccountTransactionGetResponse> findGoalAccountTransactionList(Long userId, Long accountId) {
         Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new AccountNotFoundException(accountId));
-        List<AccountTransaction> accountTransactionList = accountTransactionRepository.findByAccountAccountId(accountId);
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+        List<AccountTransaction> accountTransactionList = accountTransactionRepository.findByAccountAccountIdOrderByCreatedAtDesc(accountId);
 
         // 적금 통장이 아닐 경우 예외 처리
         if(account.getAccountTypeCd() == INSTALLMENT_SAVING.getProperty()){
@@ -154,14 +172,14 @@ public class AccountService {
 
     public AccountMonthTransactionGetResponse findAccountMonthTransactionList(Long userId, Long accountId, Integer transactionYearMonth) {
         Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new AccountNotFoundException(accountId));
+                .   orElseThrow(() -> new AccountNotFoundException(accountId));
         List<AccountTransaction> dailyTransactionProjectionList = accountTransactionRepositoryCustom.findDailyTransactionList(
-            accountId, transactionYearMonth);
+                accountId, transactionYearMonth);
         Long autoDebitTotalAmount = accountTransactionRepositoryCustom.findSumAutoDebitAmount(
-            accountId, transactionYearMonth);
+                accountId, transactionYearMonth);
         // Projection List -> DTO List
         List<AccountDailyTransactionGetResponse> dailyTransactionList = dailyTransactionProjectionList.stream()
-            .map(AccountDailyTransactionGetResponse::fromEntity).toList();
+                .map(AccountDailyTransactionGetResponse::fromEntity).toList();
 
         // 사용자 검증
         if(account.getUser() == null || !account.getUser().getUserId().equals(userId) ){
@@ -170,21 +188,21 @@ public class AccountService {
 
         // 일 별 통계
         Map<Integer, Long> amountByDay = dailyTransactionList.stream()
-            .collect(Collectors.groupingBy(
-                AccountDailyTransactionGetResponse::transactionDay,
-                Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
-                )));
+                .collect(Collectors.groupingBy(
+                        AccountDailyTransactionGetResponse::transactionDay,
+                        Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
+                        )));
 
         // 월 별 통계
         Long monthlyTotalSpending = dailyTransactionList.stream()
-            .mapToLong(transaction -> Math.abs(transaction.amount())).sum();
+                .mapToLong(transaction -> Math.abs(transaction.amount())).sum();
 
         // 월 별 거래 타입 별 통계
         Map<String, Long> amountByType = dailyTransactionList.stream()
-            .collect(Collectors.groupingBy(
-                AccountDailyTransactionGetResponse::accountTransactionType,
-                Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
-            )));
+                .collect(Collectors.groupingBy(
+                        AccountDailyTransactionGetResponse::accountTransactionType,
+                        Collectors.summingLong((transaction -> Math.abs(transaction.amount()))
+                        )));
 
         return new AccountMonthTransactionGetResponse(autoDebitTotalAmount, monthlyTotalSpending, amountByType, amountByDay, dailyTransactionList);
     }
@@ -246,10 +264,12 @@ public class AccountService {
         return new AccountAutoDebitSuggestGetResponse(life, reserve, saving);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateAccountAutoDebitAdjust(AccountAutoDebitAdjustUpsertRequest request) {
         Long savingId = request.savingAccountAutoDebitId();
         Long lifeId = request.lifeAccountAutoDebitId();
         Long spareId = request.spareAccountAutoDebitId();
+
         AccountAutoDebit savingAccountAutoDebit = accountAutoDebitRepository.findById(savingId).orElseThrow(() -> new AccountAutoDebitNotFoundException(savingId));
         AccountAutoDebit lifeAccountAutoDebit = accountAutoDebitRepository.findById(lifeId).orElseThrow(() -> new AccountAutoDebitNotFoundException(lifeId));
         AccountAutoDebit spareAccountAutoDebit = accountAutoDebitRepository.findById(spareId).orElseThrow(() -> new AccountAutoDebitNotFoundException(spareId));
@@ -260,7 +280,7 @@ public class AccountService {
     }
 
     // TODO 현재 로직은 매우 위험함 각각의 처리에 Transaction 기반으로 동작해야함 추후 필수 수정 사항!!
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void executeTodayAccountAutoDebit() {
         Integer day = LocalDateTime.now().getDayOfMonth();
         List<AccountAutoDebit> autoDebitList = accountAutoDebitRepository.findByAutoDebitDay(day);
@@ -269,27 +289,27 @@ public class AccountService {
             try {
                 Account senderAccount = accountAutoDebit.getAccount();
                 Account recieverAccount = accountRepository.findById(
-                        accountAutoDebit.getTargetAccountId())
-                    .orElseThrow(AccountNotFoundException::new);
+                                accountAutoDebit.getTargetAccountId())
+                        .orElseThrow(AccountNotFoundException::new);
                 AccountTransaction senderAccountTransaction = AccountTransaction.builder()
-                    .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
-                    .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
-                    .account(senderAccount)
-                    .targetNm(recieverAccount.getAccountId().toString())
-                    .oldBalance(senderAccount.getBalance())
-                    .newBalance(senderAccount.getBalance() - accountAutoDebit.getAutoDebitAmount())
-                    .amount(-accountAutoDebit.getAutoDebitAmount())
-                    .build();
+                        .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
+                        .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
+                        .account(senderAccount)
+                        .targetNm(recieverAccount.getAccountId().toString())
+                        .oldBalance(senderAccount.getBalance())
+                        .newBalance(senderAccount.getBalance() - accountAutoDebit.getAutoDebitAmount())
+                        .amount(-accountAutoDebit.getAutoDebitAmount())
+                        .build();
                 AccountTransaction recieverAccountTransaction = AccountTransaction.builder()
-                    .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
-                    .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
-                    .account(recieverAccount)
-                    .targetNm(senderAccount.getAccountId().toString())
-                    .oldBalance(recieverAccount.getBalance())
-                    .newBalance(
-                        recieverAccount.getBalance() + accountAutoDebit.getAutoDebitAmount())
-                    .amount(+accountAutoDebit.getAutoDebitAmount())
-                    .build();
+                        .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
+                        .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
+                        .account(recieverAccount)
+                        .targetNm(senderAccount.getAccountId().toString())
+                        .oldBalance(recieverAccount.getBalance())
+                        .newBalance(
+                                recieverAccount.getBalance() + accountAutoDebit.getAutoDebitAmount())
+                        .amount(+accountAutoDebit.getAutoDebitAmount())
+                        .build();
 
                 // 계좌 잔액 수정
                 senderAccount.minusAmount(accountAutoDebit.getAutoDebitAmount());

@@ -51,6 +51,7 @@ public class AccountService {
 
     private final JsonUtil jsonUtil;
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public AccountUpsertResponse saveAccount(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -263,10 +264,12 @@ public class AccountService {
         return new AccountAutoDebitSuggestGetResponse(life, reserve, saving);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateAccountAutoDebitAdjust(AccountAutoDebitAdjustUpsertRequest request) {
         Long savingId = request.savingAccountAutoDebitId();
         Long lifeId = request.lifeAccountAutoDebitId();
         Long spareId = request.spareAccountAutoDebitId();
+
         AccountAutoDebit savingAccountAutoDebit = accountAutoDebitRepository.findById(savingId).orElseThrow(() -> new AccountAutoDebitNotFoundException(savingId));
         AccountAutoDebit lifeAccountAutoDebit = accountAutoDebitRepository.findById(lifeId).orElseThrow(() -> new AccountAutoDebitNotFoundException(lifeId));
         AccountAutoDebit spareAccountAutoDebit = accountAutoDebitRepository.findById(spareId).orElseThrow(() -> new AccountAutoDebitNotFoundException(spareId));
@@ -277,7 +280,7 @@ public class AccountService {
     }
 
     // TODO 현재 로직은 매우 위험함 각각의 처리에 Transaction 기반으로 동작해야함 추후 필수 수정 사항!!
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void executeTodayAccountAutoDebit() {
         Integer day = LocalDateTime.now().getDayOfMonth();
         List<AccountAutoDebit> autoDebitList = accountAutoDebitRepository.findByAutoDebitDay(day);

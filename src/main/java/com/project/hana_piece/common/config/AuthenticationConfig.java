@@ -47,7 +47,7 @@ public class AuthenticationConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // TODO CORS 설정 변경 필요
-        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("http://3.36.187.132:5173");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 

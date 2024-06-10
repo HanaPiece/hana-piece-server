@@ -230,6 +230,11 @@ public class AccountService {
         return new AccountSavingGetResponse(savingAccount.getAccountId(), savingAccount.getAccountNumber());
     }
 
+    /**
+     * SALARY 계좌에 등록된 자동이체 내역을 조회
+     * @param userId 
+     * @return
+     */
     public List<AccountAutoDebitAdjustGetResponse> findAccountAutoDebitAdjust(Long userId) {
         List<AccountAutoDebitSummary> autoDebitAccountList = accountRepository.findAutoDebitAccount(userId);
         return autoDebitAccountList.stream().map(AccountAutoDebitAdjustGetResponse::fromProjection).toList();
@@ -279,50 +284,48 @@ public class AccountService {
         spareAccountAutoDebit.setAutoDebitAmount(request.spareAutoDebitAmount());
     }
 
-    // TODO 현재 로직은 매우 위험함 각각의 처리에 Transaction 기반으로 동작해야함 추후 필수 수정 사항!!
     @Transactional(propagation = Propagation.REQUIRED)
     public void executeTodayAccountAutoDebit() {
         Integer day = LocalDateTime.now().getDayOfMonth();
         List<AccountAutoDebit> autoDebitList = accountAutoDebitRepository.findByAutoDebitDay(day);
 
-        autoDebitList.stream().forEach(accountAutoDebit -> {
-            try {
-                Account senderAccount = accountAutoDebit.getAccount();
-                Account recieverAccount = accountRepository.findById(
-                                accountAutoDebit.getTargetAccountId())
-                        .orElseThrow(AccountNotFoundException::new);
-                AccountTransaction senderAccountTransaction = AccountTransaction.builder()
-                        .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
-                        .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
-                        .account(senderAccount)
-                        .targetNm(recieverAccount.getAccountId().toString())
-                        .oldBalance(senderAccount.getBalance())
-                        .newBalance(senderAccount.getBalance() - accountAutoDebit.getAutoDebitAmount())
-                        .amount(-accountAutoDebit.getAutoDebitAmount())
-                        .build();
-                AccountTransaction recieverAccountTransaction = AccountTransaction.builder()
-                        .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
-                        .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
-                        .account(recieverAccount)
-                        .targetNm(senderAccount.getAccountId().toString())
-                        .oldBalance(recieverAccount.getBalance())
-                        .newBalance(
-                                recieverAccount.getBalance() + accountAutoDebit.getAutoDebitAmount())
-                        .amount(+accountAutoDebit.getAutoDebitAmount())
-                        .build();
+        autoDebitList.forEach(this::processSpecificAutoDebit);
+    }
 
-                // 계좌 잔액 수정
-                senderAccount.minusAmount(accountAutoDebit.getAutoDebitAmount());
-                recieverAccount.plusAmount(accountAutoDebit.getAutoDebitAmount());
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void processSpecificAutoDebit(AccountAutoDebit accountAutoDebit) {
+        try {
+            Account senderAccount = accountAutoDebit.getAccount();
+            Account recieverAccount = accountRepository.findById(accountAutoDebit.getTargetAccountId()).orElseThrow(AccountNotFoundException::new);
+            AccountTransaction senderAccountTransaction = AccountTransaction.builder()
+                .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
+                .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
+                .account(senderAccount)
+                .targetNm(recieverAccount.getAccountId().toString())
+                .oldBalance(senderAccount.getBalance())
+                .newBalance(senderAccount.getBalance() - accountAutoDebit.getAutoDebitAmount())
+                .amount(-accountAutoDebit.getAutoDebitAmount())
+                .build();
+            AccountTransaction recieverAccountTransaction = AccountTransaction.builder()
+                .accountTransactionTypeCd(AccountTransactionType.TRANSFER.getProperty())
+                .accountPaymentTypeCd(AccountPaymentType.TRANSFER.getProperty())
+                .account(recieverAccount)
+                .targetNm(senderAccount.getAccountId().toString())
+                .oldBalance(recieverAccount.getBalance())
+                .newBalance(recieverAccount.getBalance() + accountAutoDebit.getAutoDebitAmount())
+                .amount(+accountAutoDebit.getAutoDebitAmount())
+                .build();
 
-                // 계좌 이체 정보 저장
-                accountTransactionRepository.save(senderAccountTransaction);
-                accountTransactionRepository.save(recieverAccountTransaction);
-            }catch (ValueInvalidException vie) {
-                //TODO 잔액 부족 시 무시 후, 반복문 계속 진행, 추후 미지급 금액에 대한 처리 필요
-                logger.info(vie.getMessage());
+            // 계좌 잔액 수정
+            senderAccount.minusAmount(accountAutoDebit.getAutoDebitAmount());
+            recieverAccount.plusAmount(accountAutoDebit.getAutoDebitAmount());
 
-            }
-        });
+            // 계좌 이체 정보 저장
+            accountTransactionRepository.save(senderAccountTransaction);
+            accountTransactionRepository.save(recieverAccountTransaction);
+        }catch (ValueInvalidException vie) {
+            //TODO 잔액 부족 시 무시, 추후 미지급 금액에 대한 처리 필요
+            logger.info(vie.getMessage());
+        }
     }
 }

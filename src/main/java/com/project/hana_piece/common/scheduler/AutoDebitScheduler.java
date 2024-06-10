@@ -14,8 +14,8 @@ public class AutoDebitScheduler {
     /**
      * 매일 0시 자동이체 일괄 처리
      */
-    @Scheduled(cron = "0 0 0 * * ?")  //매일 0시
-    //@Scheduled(cron = "0 * * * * ?")    // TODO 테스트 용 1분마다
+    //@Scheduled(cron = "0 0 0 * * ?")  //매일 0시
+    @Scheduled(cron = "0 * * * * ?")    // TODO 테스트 용 1분마다
     public void runAutoDebit() {
         accountService.executeTodayAccountAutoDebit();
     }

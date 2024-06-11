@@ -27,7 +27,7 @@ AI 기반의 자산관리 서비스 **하나피스**에서,
     <tr>
         <th>역할</th>
         <td width="300" align="center">
-            <h3>공통 / 계좌</h3> <a href='https://github.com/HanaPiece/hana-piece-server/pull/46'>Gemini AI API 추상화</a><br>자동이체 스케쥴링<br>AOP 기반 예외 처리
+            <h3>공통 / 계좌</h3> <a href='https://github.com/HanaPiece/hana-piece-server/pull/46'>Gemini AI REST API 추상화</a><br>자동이체 스케쥴링<br>AOP 기반 예외 처리
         </td>
         <td width="300" align="center">
             <h3>상품</h3> 데이터 수집 <br>인프라
@@ -66,8 +66,7 @@ AI 기반의 자산관리 서비스 **하나피스**에서,
 - IDE : IntelliJ
 - Framework : SpringBoot 3.2.5
 - ORM : JPA
-
-## 기술 스택
+- Dependencies : QueryDSL, gson, lombok, Spring security, jsonwebtoken, jackson-databind-nullable
 
 ## 주요 기능
 - 목표 관리 - 목표 등록 및 목표 달성을 위한 상품 추천

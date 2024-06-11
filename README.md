@@ -65,8 +65,7 @@ AI 기반의 자산관리 서비스 **하나피스**에서,
 - Version : Java 17
 - IDE : IntelliJ
 - Framework : SpringBoot 3.2.5
-- ORM : JPA
-- Dependencies : QueryDSL, gson, lombok, Spring security, jsonwebtoken, jackson-databind-nullable
+- Dependencies : JPA, QueryDSL, Spring security, jsonwebtoken, lombok, gson, jackson-databind-nullable
 
 ## 주요 기능
 - 목표 관리 - 목표 등록 및 목표 달성을 위한 상품 추천

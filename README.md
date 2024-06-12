@@ -11,6 +11,7 @@ AI 기반의 자산관리 서비스 **하나피스**에서,
 [하나피스_프로젝트_기획서](https://github.com/user-attachments/files/15784531/_.pdf)  
 [하나피스_화면기획서](https://github.com/user-attachments/files/15784544/_.pdf)  
 [하나피스_결과보고서](https://github.com/user-attachments/files/15797028/default.pdf)  
+[하나피스_시연영상](https://youtu.be/9NVkezlYvwM)
 
 <h2 id="teamInfo"> 👨‍👨‍👦‍👦 개발자 소개</h2>
 

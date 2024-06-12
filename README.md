@@ -27,7 +27,7 @@ AI 기반의 자산관리 서비스 **하나피스**에서,
     <tr>
         <th>역할</th>
         <td width="300" align="center">
-            <h3>공통 / 계좌</h3> <a href='https://github.com/HanaPiece/hana-piece-server/pull/46'>Gemini AI REST API 추상화</a><br>자동이체 스케쥴링<br>AOP 기반 예외 처리
+            <h3>공통 / 계좌</h3> <a href='https://github.com/HanaPiece/hana-piece-server/pull/46'>Gemini AI REST API 추상화</a><br><a href='https://github.com/HanaPiece/hana-piece-server/pull/62'>자동이체 스케쥴링</a><br><a href='https://github.com/HanaPiece/hana-piece-server/issues/74'>AOP 기반 예외 처리</a>
         </td>
         <td width="300" align="center">
             <h3>상품</h3> 데이터 수집 <br>인프라

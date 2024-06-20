@@ -62,7 +62,7 @@
     <tr>
         <th>역할</th>
         <td width="300" align="center">
-            <h3>공통 / 계좌</h3> <a href='https://github.com/HanaPiece/hana-piece-server/pull/46'>Gemini AI REST API 추상화</a><br><a href='https://github.com/HanaPiece/hana-piece-server/pull/62'>자동이체 스케쥴링</a><br><a href='https://github.com/HanaPiece/hana-piece-server/issues/74'>AOP 기반 예외 처리</a>
+            <h3>공통 / 계좌</h3> <a href='https://github.com/HanaPiece/hana-piece-server/pull/46'>Gemini AI REST API 추상화</a><br><a href='https://github.com/HanaPiece/hana-piece-server/issues/74'>AOP 기반 예외 처리</a>
         </td>
         <td width="300" align="center">
             <h3>상품</h3> 데이터 수집 <br>인프라
